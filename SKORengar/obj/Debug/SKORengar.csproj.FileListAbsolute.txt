@@ -1,0 +1,12 @@
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\bin\Debug\SKORengar.exe.config
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\obj\Debug\SKORengar.csprojResolveAssemblyReference.cache
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\bin\Debug\SKORengar.exe
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\bin\Debug\SKORengar.pdb
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\bin\Debug\Igniter.dll
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\bin\Debug\LeagueSharp.Common.dll
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\bin\Debug\LeagueSharp.dll
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\bin\Debug\SharpDX.dll
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\bin\Debug\SharpDX.Direct3D9.dll
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\bin\Debug\LeagueSharp.xml
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\obj\Debug\SKORengar.exe
+c:\users\phisichodelic\documents\visual studio 2012\Projects\SKORengar\SKORengar\obj\Debug\SKORengar.pdb
