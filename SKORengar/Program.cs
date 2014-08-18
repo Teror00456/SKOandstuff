@@ -41,6 +41,8 @@ namespace SKORengar
 
         private static SpellSlot IgniteSlot;
 
+        private static float atualQRange;
+
         private static Obj_AI_Hero Player;
 
         static void Main(string[] args)
@@ -53,7 +55,7 @@ namespace SKORengar
             Player = ObjectManager.Player;
             if (ObjectManager.Player.BaseSkinName != ChampionName) return;
 
-            Q = new Spell(SpellSlot.Q, Player.AttackRange + 50f);
+            
             W = new Spell(SpellSlot.W, 450);
             E = new Spell(SpellSlot.E, 1000);
             R = new Spell(SpellSlot.R, 900);
@@ -65,7 +67,7 @@ namespace SKORengar
             SpellList.Add(E);
             SpellList.Add(R);
 
-            HDR = new Items.Item(3074, Player.AttackRange+50);
+            HDR = new Items.Item(3074, 175f);
             BKR = new Items.Item(3153, 450f);
             BWC = new Items.Item(3144, 450f);
             YOU = new Items.Item(3142, 185f);
@@ -135,6 +137,10 @@ namespace SKORengar
 
         private static void OnGameUpdate(EventArgs args) 
         {
+           Player = ObjectManager.Player;
+           Q = new Spell(SpellSlot.Q, Player.AttackRange + 50);
+           
+
             Orbwalker.SetAttacks(true);
             if (Config.Item("ActiveCombo").GetValue<KeyBind>().Active) 
             {
