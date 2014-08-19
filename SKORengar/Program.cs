@@ -15,7 +15,7 @@ namespace SKORengar
     class Program
     {
 
-        private static string ChampionName = "Rengar";
+        private const string ChampionName = "Rengar";
 
         private static Orbwalking.Orbwalker Orbwalker;
 
@@ -58,7 +58,7 @@ namespace SKORengar
             
             W = new Spell(SpellSlot.W, 450);
             E = new Spell(SpellSlot.E, 1000);
-            R = new Spell(SpellSlot.R, 900);
+            R = new Spell(SpellSlot.R, 1100);
 
             E.SetSkillshot(0.250f, 70, 1500, true, Prediction.SkillshotType.SkillshotLine);
 
@@ -139,7 +139,7 @@ namespace SKORengar
         {
            Player = ObjectManager.Player;
            Q = new Spell(SpellSlot.Q, Player.AttackRange + 50);
-           
+
 
             Orbwalker.SetAttacks(true);
             if (Config.Item("ActiveCombo").GetValue<KeyBind>().Active) 
@@ -251,20 +251,44 @@ namespace SKORengar
         private static void TripleQ() 
         {
             var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
-            if (Player.Distance(target) <= 900 && Q.IsReady() && R.IsReady() && Player.Mana == 5)
+
+            if (Player.Distance(target) <= R.Range && Q.IsReady() && R.IsReady() && Player.Mana == 5)
             {
                 if (!Player.HasBuff("RengarR")) {
                     R.Cast();
                 }
-                if (Player.HasBuff("RengarR")) {
-                    Q.Cast();
-                }
+                Q1();
+                Q2();
+                Q3(target);
  
             }
            
             
         }
+        private static void Q1(){
+        
+            if (Player.HasBuff("RengarR")){
+            Q.Cast();
+        }
+        
+        }
+        private static void Q2()
+        {
+            if (Q.IsReady() && Player.Mana >= 2) 
+            {
+                Q.Cast();
+            }
+            
+        }
+        private static void Q3(Obj_AI_Hero target)
+        {
+            if (Q.IsReady()) {
+                Q.Cast();
+               W.Cast(target);
+                E.Cast(target);
+            }
 
+        }
         private static void KillSteal() {
             var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
             var igniteDmg = DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
