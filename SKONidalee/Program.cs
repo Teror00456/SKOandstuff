@@ -188,6 +188,7 @@ namespace SKONidalee
             Orbwalker.SetAttacks((!Q.IsReady() || W.IsReady()));
 
             if (target != null) {
+
                 
                 if(IsHuman && Player.Distance(target) >= W.Range)
                 {
@@ -271,6 +272,13 @@ namespace SKONidalee
                     R.Cast();
                 }
 
+                if (Config.Item("UseItems").GetValue<bool>())
+                {
+                    BKR.Cast(target);
+                    YOU.Cast();
+                    BWC.Cast(target);
+                    DFG.Cast(target);
+                }
             }
         }
 
@@ -285,7 +293,7 @@ namespace SKONidalee
                     {
                         Q.Cast(target);
                     }
-                    if (Config.Item("UseQHarass").GetValue<bool>() && W.IsReady())
+                    if (Config.Item("UseWHarass").GetValue<bool>() && W.IsReady())
                     {
                         W.Cast(target);
                     }
@@ -297,7 +305,7 @@ namespace SKONidalee
                     {
                         Q.Cast(target);
                     }
-                    if (Config.Item("UseQHarass").GetValue<bool>() && W.IsReady())
+                    if (Config.Item("UseWHarass").GetValue<bool>() && W.IsReady())
                     {
                         W.Cast(target);
                     }

@@ -70,9 +70,14 @@ namespace SKO_Ban_Karma
             SpellList.Add(E);
             SpellList.Add(R);
 
+            BKR = new Items.Item(3153, 450f);
+            BWC = new Items.Item(3144, 450f);
+            YOU = new Items.Item(3142, 185f);
+            DFG = new Items.Item(3128, 750f);
+
             IgniteSlot = Player.GetSpellSlot("SummonetDot");
 
-            //SKO Ban Karma
+            //SKO SKO Ban Karma
             Config = new Menu(ChampionName, "SKOBanKarma", true);
 
             //TargetSelector
@@ -148,26 +153,26 @@ namespace SKO_Ban_Karma
             {
                 KillSteal();
             }
-            
+            AutoW();
         }
 
         private static void Combo() {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            //Auto W
-            if (Player.Health <= Player.MaxHealth * 0.70 && Player.HasBuff("KarmaMantra") && Config.Item("UseWCombo").GetValue<bool>()) 
+
+            if (Config.Item("UseItems").GetValue<bool>())
             {
-                if (W.IsReady() && Player.Distance(target) <= W.Range) {
-                    R.Cast();
-                    W.Cast(target);
-                
-                }
+                BKR.Cast(target);
+                YOU.Cast();
+                BWC.Cast(target);
+                DFG.Cast(target);
             }
+
             if(W.IsReady() && Player.Distance(target) <= W.Range && Config.Item("UseWCombo").GetValue<bool>()){
                 W.Cast(target);
             }
-            if (Q.IsReady() && Player.Distance(target) <= Q.Range) 
+            if (Q.IsReady() && Player.Distance(target) <= Q.Range && Config.Item("UseQCombo").GetValue<bool>()) 
             {
-                if (Config.Item("UseRCombo").GetValue<bool>() && Player.HasBuff("KarmaMantra"))
+                if (Config.Item("UseRCombo").GetValue<bool>() && Player.HasBuff("KarmaMantra") && !Q.Collision)
                 {
                     R.Cast();
                     Q.Cast(target);
@@ -177,11 +182,24 @@ namespace SKO_Ban_Karma
                     Q.Cast(target);
                 }
             }
-            if (E.IsReady() && Config.Item("UseECombo").GetValue<bool>() && Player.Distance(target) > W.Range) {
-                if (Player.HasBuff("KarmaMantra")) return;
-                E.Cast(Player);
+            if (E.IsReady() && Config.Item("UseECombo").GetValue<bool>() && Player.Distance(target) > W.Range && !Player.HasBuff("KarmaMantra")) {
+ 
+                    E.Cast(Player);
             }
 
+        }
+        private static void AutoW() {
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            //Auto W
+            if (Player.Health <= Player.MaxHealth * 0.70 && Player.HasBuff("KarmaMantra") && Config.Item("UseWCombo").GetValue<bool>())
+            {
+                if (W.IsReady() && Player.Distance(target) <= W.Range)
+                {
+                    R.Cast();
+                    W.Cast(target);
+
+                }
+            }
         }
         private static void Harass()
         {
