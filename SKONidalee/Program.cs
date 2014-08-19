@@ -14,7 +14,7 @@ namespace SKONidalee
 {
     class Program
     {
-        private static string ChampionName = "Nidalee";
+        private const string ChampionName = "Nidalee";
 
         private static Orbwalking.Orbwalker Orbwalker;
 
