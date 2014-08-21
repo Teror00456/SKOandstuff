@@ -8,7 +8,6 @@ using System.Runtime.CompilerServices;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using Igniter;
 
 namespace SKONidalee
 {
@@ -29,8 +28,6 @@ namespace SKONidalee
         private static Spell QC;
 
         private static Spell WC;
-
-        private static Spell WCWP;
 
         private static Spell EC;
 
@@ -55,6 +52,8 @@ namespace SKONidalee
         private static bool IsHuman;
 
         private static bool IsCougar;
+
+        private static bool Recall; 
 
         static void Main(string[] args)
         {
@@ -117,6 +116,13 @@ namespace SKONidalee
             Config.SubMenu("Combo").AddItem(new MenuItem("UseItems", "Use Items")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
+            //Extra
+            Config.AddSubMenu(new Menu("Extra", "Extra"));
+            Config.SubMenu("Extra").AddItem(new MenuItem("UseAutoE", "Use auto E")).SetValue(true);
+            Config.SubMenu("Extra").AddItem(new MenuItem("HPercent", "Health percent")).SetValue(new Slider(40, 1, 100));
+
+
+
             //Harass
             Config.AddSubMenu(new Menu("Harass", "Harass"));
             Config.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q")).SetValue(true);
@@ -152,10 +158,11 @@ namespace SKONidalee
             Config.AddToMainMenu();
 
             Game.OnGameUpdate += OnGameUpdate;
+           Obj_AI_Hero.OnCreate += OnCreateObj;
+            Obj_AI_Hero.OnDelete += OnDeleteObj;
             Drawing.OnDraw += OnDraw;
 
             Game.PrintChat("<font color='#1d87f2'>SKONidalee Loaded!</font>");
-
         }
 
         private static void OnGameUpdate(EventArgs args) 
@@ -180,6 +187,10 @@ namespace SKONidalee
             if (Config.Item("ActiveKs").GetValue<bool>()) {
                 KillSteal();
             }
+            if (Config.Item("UseAutoE").GetValue<bool>()) {
+              AutoE();
+            }
+           
         }
 
 
@@ -187,39 +198,29 @@ namespace SKONidalee
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             Orbwalker.SetAttacks((!Q.IsReady() || W.IsReady()));
 
-            if (target != null) {
+            if (target != null)
+            {
 
-                
-                if(IsHuman && Player.Distance(target) >= W.Range)
+
+                if (IsHuman && Player.Distance(target) <= Q.Range && Config.Item("UseQCombo").GetValue<bool>() && Q.IsReady())
                 {
-                    if (Config.Item("UseQCombo").GetValue<bool>() && Q.IsReady()) 
-                    {
-                        Q.Cast(target);
-                    }
-                    if (Config.Item("UseWCombo").GetValue<bool>() && W.IsReady())
-                    {
-                        W.Cast(target);
-                    }
-                    
-                }
-                if (IsHuman && Player.Distance(target) < W.Range) {
+                    Q.Cast(target);
 
-                    if (Config.Item("UseQCombo").GetValue<bool>() && Q.IsReady())
-                    {
-                        Q.Cast(target);
-                    }
-                    if (Config.Item("UseWCombo").GetValue<bool>() && W.IsReady())
-                    {
-                        W.Cast(target);
-                    }
+                }
+                if (IsHuman && Player.Distance(target) <= W.Range && Config.Item("UseWCombo").GetValue<bool>() && W.IsReady())
+                {
+                    W.Cast(target);
                 }
 
-                if (IsHuman && Config.Item("UseRCombo").GetValue<bool>() && Player.Distance(target) <= 625 && R.IsReady()) {
+                if (IsHuman && Config.Item("UseRCombo").GetValue<bool>() && Player.Distance(target) <= 625 && R.IsReady())
+                {
                     if (IsHuman) { R.Cast(); }
 
-                    if (IsCougar) {
-                        if (Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= 400) {
-                            WC.Cast(target);    
+                    if (IsCougar)
+                    {
+                        if (Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= 400)
+                        {
+                            WC.Cast(target);
                         }
                         if (Config.Item("UseEComboCougar").GetValue<bool>() && Player.Distance(target) <= 300)
                         {
@@ -230,16 +231,17 @@ namespace SKONidalee
                             Orbwalker.SetAttacks(true);
                             QC.Cast(target);
                         }
-                      /*  if (Player.HasBuff("nidaleepassivehunting", true) && Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= WCWP.Range)
-                        {
-                            WCWP.Cast(target);
-                        }*/
-                    
+                        /*  if (Player.HasBuff("nidaleepassivehunting", true) && Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= WCWP.Range)
+                          {
+                              WCWP.Cast(target);
+                          }*/
+
                     }
 
                 }
 
-                if (IsCougar && Player.Distance(target) < 625) {
+                if (IsCougar && Player.Distance(target) < 625)
+                {
                     if (IsHuman) { R.Cast(); }
 
                     if (IsCougar)
@@ -265,10 +267,12 @@ namespace SKONidalee
                     }
                 }
 
-                if (IsCougar && Config.Item("UseRCombo").GetValue<bool>() && Player.Distance(target) > W.Range) {
+                if (IsCougar && Config.Item("UseRCombo").GetValue<bool>() && Player.Distance(target) > WC.Range)
+                {
                     R.Cast();
                 }
-                if (IsCougar && Player.Distance(target) > EC.Range && Config.Item("UseRCombo").GetValue<bool>()) {
+                if (IsCougar && Player.Distance(target) > EC.Range && Config.Item("UseRCombo").GetValue<bool>())
+                {
                     R.Cast();
                 }
 
@@ -285,32 +289,19 @@ namespace SKONidalee
         private static void Harass()
         {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-             if (target != null) {
-                
-                if(IsHuman && Player.Distance(target) >= W.Range)
-                {
-                    if (Config.Item("UseQHarass").GetValue<bool>() && Q.IsReady()) 
-                    {
-                        Q.Cast(target);
-                    }
-                    if (Config.Item("UseWHarass").GetValue<bool>() && W.IsReady())
-                    {
-                        W.Cast(target);
-                    }
-                    
-                }
-                if (IsHuman && Player.Distance(target) < W.Range) {
+            if (target != null)
+            {
 
-                    if (Config.Item("UseQHarass").GetValue<bool>() && Q.IsReady())
-                    {
-                        Q.Cast(target);
-                    }
-                    if (Config.Item("UseWHarass").GetValue<bool>() && W.IsReady())
-                    {
-                        W.Cast(target);
-                    }
+                if (IsHuman && Player.Distance(target) <= Q.Range && Config.Item("UseQHarass").GetValue<bool>() && Q.IsReady())
+                {
+                    Q.Cast(target);
                 }
-               }
+
+                if (IsHuman && Player.Distance(target) <= W.Range && Config.Item("UseWHarass").GetValue<bool>() && W.IsReady())
+                {
+                    W.Cast(target);
+                }
+            }
         }
 
         private static void Farm()
@@ -319,6 +310,7 @@ namespace SKONidalee
             var allminions = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Enemy, MinionOrderTypes.Health);
 
             if (Config.Item("UseQLane").GetValue<bool>()) {
+                if (IsHuman) { R.Cast(); }
                 foreach (var minion in allminions) {
                     if(QC.IsReady() && minion.IsValidTarget() && Player.Distance(minion) <= QC.Range){
                     QC.Cast(minion);
@@ -334,6 +326,21 @@ namespace SKONidalee
                 }
             }
 
+        }
+
+        private static void AutoE() 
+        {
+            
+            if (E.IsReady() && Player.IsMe){
+                if(Player.HasBuff("Recall"))return;
+                if (Player.Health <= (Player.MaxHealth * (Config.Item("HPercent").GetValue<Slider>().Value) / 100))
+                {
+                    Player.Spellbook.CastSpell(SpellSlot.E, Player);
+                }
+            
+            }
+
+        
         }
 
         private static void KillSteal() 
@@ -353,7 +360,10 @@ namespace SKONidalee
 
             if (Q.IsReady() && Player.Distance(target) <= Q.Range && target != null && Config.Item("UseQKs").GetValue<bool>()) 
             {
-                Q.Cast(target);
+                if (target.Health <= QHDmg)
+                {
+                    Q.Cast(target);
+                }
             }
         }
 
@@ -382,6 +392,30 @@ namespace SKONidalee
             }
         
         }
+
+        private static void OnCreateObj(GameObject sender, EventArgs args) {
+            //Recall
+            if(!(sender is Obj_GeneralParticleEmmiter))return;
+            var obj = (Obj_GeneralParticleEmmiter)sender;
+            if (obj != null && obj.IsMe && obj.Name == "TeleportHome") 
+            {
+                Recall = true;
+            }
+        
+        }
+
+        private static void OnDeleteObj(GameObject sender, EventArgs args)
+        {
+            //Recall
+            if (!(sender is Obj_GeneralParticleEmmiter)) return;
+            var obj = (Obj_GeneralParticleEmmiter)sender;
+            if (obj != null && obj.IsMe && obj.Name == "TeleportHome")
+            {
+                Recall = false;
+            }
+
+        }
+
         private static void OnDraw(EventArgs args) 
         {
             if (Config.Item("CircleLag").GetValue<bool>())
