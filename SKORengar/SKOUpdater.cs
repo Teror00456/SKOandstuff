@@ -7,16 +7,16 @@ namespace SKORengar
 
    internal class SKOUpdater
     {
-        private const int localversion = 2;
+        private const int localversion = 5;
 
         internal static bool isInitialized;
 
         private static void bgw_DoWork(object sender, DoWorkEventArgs e)
         {
-            Updater updater = new Updater("https://github.com/SKOBoL/LeagueSharp/raw/master/Version/SKORengar/SKORengar.version", "https://github.com/SKOBoL/LeagueSharp/raw/master/Build/SKORengar/SKORengar.exe", 4);
+            Updater updater = new Updater("https://github.com/SKOBoL/LeagueSharp/raw/master/Version/SKORengar/SKORengar.version", "https://github.com/SKOBoL/LeagueSharp/raw/master/Build/SKORengar/SKORengar.exe", 5);
             if (!updater.NeedUpdate)
             {
-                Game.PrintChat("<font color='#1d87f2'> SKORengar: Most recent version ({0}) loaded!", new object[] { 2 });
+                Game.PrintChat("<font color='#1d87f2'> SKORengar: Most recent version loaded!");
             }
             else
             {

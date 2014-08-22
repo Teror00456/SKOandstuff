@@ -243,7 +243,7 @@ namespace SKORengar
                 }
                 if (Player.Distance(target) <= E.Range && E.IsReady())
                 {
-                    E.CastOnUnit(target);
+                    E.Cast(target);
                 }
             }
         }
@@ -350,7 +350,6 @@ namespace SKORengar
         }
 
         private static void Farm() {
-            var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
             if (!Orbwalking.CanMove(40)) return;
             var Minions = MinionManager.GetMinions(Player.ServerPosition, W.Range);
 
@@ -388,19 +387,18 @@ namespace SKORengar
                         return;
                     }
                 }
-            }
-            if (Config.Item("UseItems").GetValue<bool>())
+            }else if (Config.Item("UseItems").GetValue<bool>())
             {
-                BKR.Cast(target);
-                YOU.Cast();
-                BWC.Cast(target);
-                if (Player.Distance(target) <= HDR.Range)
+                foreach (var minion in Minions)
                 {
-                    HDR.Cast(target);
-                }
-                if (Player.Distance(target) <= TMT.Range)
-                {
-                    TMT.Cast(target);
+                    if (Player.Distance(minion) <= HDR.Range)
+                    {
+                        HDR.Cast(minion);
+                    }
+                    if (Player.Distance(minion) <= TMT.Range)
+                    {
+                        TMT.Cast(minion);
+                    }
                 }
             }
         }
