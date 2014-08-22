@@ -2,28 +2,28 @@
 using LeagueSharp;
 using System.ComponentModel;
 
-namespace SKONidalee
+namespace SKORengar
 {
 
    internal class SKOUpdater
     {
-        private const int localversion = 5;
+        private const int localversion = 2;
 
         internal static bool isInitialized;
 
         private static void bgw_DoWork(object sender, DoWorkEventArgs e)
         {
-            Updater updater = new Updater("https://github.com/SKOBoL/LeagueSharp/raw/master/Version/SKONidalee/SKONidalee.version", "https://github.com/SKOBoL/LeagueSharp/raw/master/Build/SKONidalee/SKONidalee.exe", 5);
+            Updater updater = new Updater("https://github.com/SKOBoL/LeagueSharp/raw/master/Version/SKORengar/SKORengar.version", "https://github.com/SKOBoL/LeagueSharp/raw/master/Build/SKORengar/SKORengar.exe", 4);
             if (!updater.NeedUpdate)
             {
-                Game.PrintChat("<font color='#1d87f2'> SKONidalee: Most recent version ({0}) loaded!", new object[] { 5 });
+                Game.PrintChat("<font color='#1d87f2'> SKORengar: Most recent version ({0}) loaded!", new object[] { 2 });
             }
             else
             {
-                Game.PrintChat("<font color='#1d87f2'> SKONidalee: Updating ...");
+                Game.PrintChat("<font color='#1d87f2'> SKORengar: Updating ...");
                 if (updater.Update())
                 {
-                    Game.PrintChat("<font color='#1d87f2'> SKONidalee: Update complete, reload please.");
+                    Game.PrintChat("<font color='#1d87f2'> SKORengar: Update complete, reload please.");
                     return;
                 }
             }
@@ -37,7 +37,7 @@ namespace SKONidalee
 
         private static void UpdateCheck()
         {
-            Game.PrintChat("<font color='#1d87f2'> SKONidalee loaded!");
+            Game.PrintChat("<font color='#1d87f2'> SKORengar loaded!");
             BackgroundWorker backgroundWorker = new BackgroundWorker();
             backgroundWorker.DoWork += new DoWorkEventHandler(bgw_DoWork);
             backgroundWorker.RunWorkerAsync();

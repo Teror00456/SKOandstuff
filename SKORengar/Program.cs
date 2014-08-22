@@ -35,6 +35,8 @@ namespace SKORengar
 
         private static Items.Item BKR;
 
+        private static Items.Item TMT;
+
         private static Items.Item BWC;
 
         private static Items.Item YOU;
@@ -55,7 +57,8 @@ namespace SKORengar
             Player = ObjectManager.Player;
             if (ObjectManager.Player.BaseSkinName != ChampionName) return;
 
-            
+            SKOUpdater.InitializeSKOUpdate();
+
             W = new Spell(SpellSlot.W, 450);
             E = new Spell(SpellSlot.E, 1000);
             R = new Spell(SpellSlot.R, 1100);
@@ -68,6 +71,7 @@ namespace SKORengar
             SpellList.Add(R);
 
             HDR = new Items.Item(3074, 175f);
+            TMT = new Items.Item(3077, 175f);
             BKR = new Items.Item(3153, 450f);
             BWC = new Items.Item(3144, 450f);
             YOU = new Items.Item(3142, 185f);
@@ -132,7 +136,7 @@ namespace SKORengar
             Game.OnGameUpdate += OnGameUpdate;
             Drawing.OnDraw += OnDraw;
 
-            Game.PrintChat("<font color='#1d87f2'>SKORengar Loaded!</font>");
+           // Game.PrintChat("<font color='#1d87f2'>SKORengar Loaded!</font>");
         }
 
         private static void OnGameUpdate(EventArgs args) 
@@ -211,6 +215,10 @@ namespace SKORengar
                     {
                         HDR.Cast(target);
                     }
+                    if (Player.Distance(target) <= TMT.Range)
+                    {
+                        TMT.Cast(target);
+                    }
                 }
             }
         }
@@ -262,7 +270,20 @@ namespace SKORengar
                 Q3(target);
  
             }
-           
+            if (Config.Item("UseItems").GetValue<bool>())
+            {
+                BKR.Cast(target);
+                YOU.Cast();
+                BWC.Cast(target);
+                if (Player.Distance(target) <= HDR.Range)
+                {
+                    HDR.Cast(target);
+                }
+                if (Player.Distance(target) <= TMT.Range)
+                {
+                    TMT.Cast(target);
+                }
+            }
             
         }
         private static void Q1(){
@@ -329,6 +350,7 @@ namespace SKORengar
         }
 
         private static void Farm() {
+            var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
             if (!Orbwalking.CanMove(40)) return;
             var Minions = MinionManager.GetMinions(Player.ServerPosition, W.Range);
 
@@ -365,6 +387,20 @@ namespace SKORengar
                         E.Cast(minion);
                         return;
                     }
+                }
+            }
+            if (Config.Item("UseItems").GetValue<bool>())
+            {
+                BKR.Cast(target);
+                YOU.Cast();
+                BWC.Cast(target);
+                if (Player.Distance(target) <= HDR.Range)
+                {
+                    HDR.Cast(target);
+                }
+                if (Player.Distance(target) <= TMT.Range)
+                {
+                    TMT.Cast(target);
                 }
             }
         }

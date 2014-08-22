@@ -65,10 +65,12 @@ namespace SKONidalee
             Player = ObjectManager.Player;
             if (Player.BaseSkinName != ChampionName) return;
 
+            SKOUpdater.InitializeSKOUpdate();
+
             Q = new Spell(SpellSlot.Q, 1500f);
             W = new Spell(SpellSlot.W, 900f);
             E = new Spell(SpellSlot.E, 600f);
-           // WC = new Spell(SpellSlot.W, 375f);
+           WC = new Spell(SpellSlot.W, 750f);
             //WCWP = new Spell(SpellSlot.W, 750f);
             EC = new Spell(SpellSlot.E, 300f);
             R = new Spell(SpellSlot.R, 0);
@@ -162,18 +164,24 @@ namespace SKONidalee
             Obj_AI_Hero.OnDelete += OnDeleteObj;
             Drawing.OnDraw += OnDraw;
 
-            Game.PrintChat("<font color='#1d87f2'>SKONidalee Loaded!</font>");
+            //Game.PrintChat("<font color='#1d87f2'>SKONidalee Loaded!</font>");
         }
 
         private static void OnGameUpdate(EventArgs args) 
         {
+            if (Config.Item("UseAutoE").GetValue<bool>())
+            {
+                AutoE();
+            }
+
             Player = ObjectManager.Player;
             QC = new Spell(SpellSlot.Q, Player.AttackRange + 50);
             Orbwalker.SetAttacks(true);
 
             CheckSpells();
 
-            if (Config.Item("ActiveCombo").GetValue<KeyBind>().Active) {
+            if (Config.Item("ActiveCombo").GetValue<KeyBind>().Active)
+            {
                 Combo();
             }
             if (Config.Item("ActiveHarass").GetValue<KeyBind>().Active)
@@ -186,9 +194,6 @@ namespace SKONidalee
             }
             if (Config.Item("ActiveKs").GetValue<bool>()) {
                 KillSteal();
-            }
-            if (Config.Item("UseAutoE").GetValue<bool>()) {
-              AutoE();
             }
            
         }
@@ -218,11 +223,11 @@ namespace SKONidalee
 
                     if (IsCougar)
                     {
-                        if (Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= 400)
+                        if (Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= WC.Range)
                         {
                             WC.Cast(target);
                         }
-                        if (Config.Item("UseEComboCougar").GetValue<bool>() && Player.Distance(target) <= 300)
+                        if (Config.Item("UseEComboCougar").GetValue<bool>() && Player.Distance(target) <= EC.Range)
                         {
                             EC.Cast(target);
                         }
@@ -246,11 +251,11 @@ namespace SKONidalee
 
                     if (IsCougar)
                     {
-                        if (Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= 400)
+                        if (Config.Item("UseWComboCougar").GetValue<bool>() && Player.Distance(target) <= WC.Range)
                         {
                             WC.Cast(target);
                         }
-                        if (Config.Item("UseEComboCougar").GetValue<bool>() && Player.Distance(target) <= 300)
+                        if (Config.Item("UseEComboCougar").GetValue<bool>() && Player.Distance(target) <= EC.Range)
                         {
                             EC.Cast(target);
                         }
@@ -329,10 +334,11 @@ namespace SKONidalee
         }
 
         private static void AutoE() 
-        {
-            
-            if (E.IsReady() && Player.IsMe){
+        { 
+            if (Player.Spellbook.CanUseSpell(SpellSlot.E) == SpellState.Ready && Player.IsMe){
+
                 if(Player.HasBuff("Recall"))return;
+
                 if (Player.Health <= (Player.MaxHealth * (Config.Item("HPercent").GetValue<Slider>().Value) / 100))
                 {
                     Player.Spellbook.CastSpell(SpellSlot.E, Player);
@@ -383,13 +389,14 @@ namespace SKONidalee
                 IsCougar = true;
             }
 
-            if (Player.HasBuff("nidaleepassivehunting", true))
+           /* if (Player.HasBuff("nidaleepassivehunting", true))
             {
                 WC = new Spell(SpellSlot.W, 750f);
             }
             else{
                 WC = new Spell(SpellSlot.W, 375f);
             }
+            */
         
         }
 
