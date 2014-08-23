@@ -7,13 +7,13 @@ namespace SKO_Galio
 
    internal class SKOUpdater
     {
-        private const int localversion = 1;
+        private const int localversion = 2;
 
         internal static bool isInitialized;
 
         private static void bgw_DoWork(object sender, DoWorkEventArgs e)
         {
-            Updater updater = new Updater("https://github.com/SKOBoL/LeagueSharp/raw/master/Version/SKOGalio/SKOGalio.version", "https://github.com/SKOBoL/LeagueSharp/raw/master/Build/SKOGalio/SKOGalio.exe", 1);
+            Updater updater = new Updater("https://github.com/SKOBoL/LeagueSharp/raw/master/Version/SKOGalio/SKOGalio.version", "https://github.com/SKOBoL/LeagueSharp/raw/master/Build/SKOGalio/SKOGalio.exe", 2);
             if (!updater.NeedUpdate)
             {
                 Game.PrintChat("<font color='#1d87f2'> SKOGalio: Most recent version loaded!");

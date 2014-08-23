@@ -79,7 +79,7 @@ namespace SKO_Galio
             //Combo
             Config.AddSubMenu(new Menu("Combo", "Combo"));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q")).SetValue(true);
-            //Config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W")).SetValue(true);
+            Config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("MinEnemys", "Min enemys for R")).SetValue(new Slider(3, 5, 1));
@@ -170,6 +170,10 @@ namespace SKO_Galio
                 {
                     Orbwalker.SetMovement(false);
                     R.Cast(target, false, true);
+                    if (Config.Item("UseWCombo").GetValue<bool>())
+                    {
+                        W.Cast(Player);
+                    }
                 }
             
             }
