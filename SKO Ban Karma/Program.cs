@@ -62,7 +62,7 @@ namespace SKO_Ban_Karma
             E = new Spell(SpellSlot.E, 800f);
             R = new Spell(SpellSlot.R, 0f);
 
-            Q.SetSkillshot(0.25f, 70, 1800, true, Prediction.SkillshotType.SkillshotLine);
+            Q.SetSkillshot(0.25f, 70, 1800, true, SkillshotType.SkillshotLine);
 
 
             SpellList.Add(Q);
