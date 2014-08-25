@@ -63,7 +63,7 @@ namespace SKORengar
             E = new Spell(SpellSlot.E, 1000);
             R = new Spell(SpellSlot.R, 1100);
 
-            E.SetSkillshot(0.250f, 70, 1500, true, Prediction.SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.250f, 70, 1500, true, SkillshotType.SkillshotLine);
 
             SpellList.Add(Q);
             SpellList.Add(W);
