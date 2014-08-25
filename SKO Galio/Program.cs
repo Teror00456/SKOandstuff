@@ -47,9 +47,9 @@ namespace SKO_Galio
             E = new Spell(SpellSlot.E, 1180f);
             R = new Spell(SpellSlot.R, 560f);
 
-            Q.SetSkillshot(0.5f, 120, 1300, false, Prediction.SkillshotType.SkillshotCircle);
-            E.SetSkillshot(0.5f, 140, 1200, false, Prediction.SkillshotType.SkillshotLine);
-            R.SetSkillshot(0.5f, 300, 0, false, Prediction.SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(0.5f, 120, 1300, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(0.5f, 140, 1200, false, SkillshotType.SkillshotLine);
+            R.SetSkillshot(0.5f, 300, 0, false, SkillshotType.SkillshotCircle);
 
             SpellList.Add(Q);
             SpellList.Add(W);
@@ -249,7 +249,7 @@ namespace SKO_Galio
             foreach(Obj_AI_Hero enemys in ObjectManager.Get<Obj_AI_Hero>()){
 
                 var pred = R.GetPrediction(enemys, true);
-                if(pred.HitChance >= Prediction.HitChance.HighHitchance && !enemys.IsMe && enemys.IsEnemy && Vector3.Distance(Player.Position, pred.Position) <= R.Range){
+                if(pred.Hitchance >= HitChance.High && !enemys.IsMe && enemys.IsEnemy && Vector3.Distance(Player.Position, pred.UnitPosition) <= R.Range){
                     Enemys = Enemys + 1;
                 }
             }
