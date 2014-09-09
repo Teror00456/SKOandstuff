@@ -1,49 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Drawing;
-using System.Runtime.CompilerServices;
+using System.Security.AccessControl;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
-using Igniter;
+using Color = System.Drawing.Color;
 
 namespace SKORengar
 {
-    class Program
+   internal class Program
     {
 
-        private const string ChampionName = "Rengar";
+        public const string ChampionName = "Rengar";
 
-        private static Orbwalking.Orbwalker Orbwalker;
+        public static Orbwalking.Orbwalker Orbwalker;
 
-        private static List<Spell> SpellList = new List<Spell>();
+        public static List<Spell> SpellList = new List<Spell>();
 
-        private static Spell Q;
+        public static Spell Q;
 
-        private static Spell W;
+        public static Spell W;
 
-        private static Spell E;
+        public static Spell E;
 
-        private static Spell R;
+        public static Spell R;
 
-        private static Menu Config;
+        public static Menu Config;
 
-        private static Items.Item HDR;
+        public static Items.Item HDR;
 
-        private static Items.Item BKR;
+        public static Items.Item BKR;
 
-        private static Items.Item TMT;
+        public static Items.Item TMT;
 
-        private static Items.Item BWC;
+        public static Items.Item BWC;
 
-        private static Items.Item YOU;
+        public static Items.Item YOU;
 
-        private static SpellSlot IgniteSlot;
+        public static Items.Item SOD;
 
-        private static float atualQRange;
+        public static SpellSlot IgniteSlot;
 
         private static Obj_AI_Hero Player;
 
@@ -75,6 +72,7 @@ namespace SKORengar
             BKR = new Items.Item(3153, 450f);
             BWC = new Items.Item(3144, 450f);
             YOU = new Items.Item(3142, 185f);
+            
 
             IgniteSlot = Player.GetSpellSlot("SummonerDot");
 
@@ -143,7 +141,7 @@ namespace SKORengar
         {
            Player = ObjectManager.Player;
            Q = new Spell(SpellSlot.Q, Player.AttackRange + 50);
-
+           SOD = new Items.Item(3131, Player.AttackRange + 50);
 
             Orbwalker.SetAttacks(true);
             if (Config.Item("ActiveCombo").GetValue<KeyBind>().Active) 
@@ -211,6 +209,7 @@ namespace SKORengar
                     BKR.Cast(target);
                     YOU.Cast();
                     BWC.Cast(target);
+                    SOD.Cast();
                     if (Player.Distance(target) <= HDR.Range)
                     {
                         HDR.Cast(target);
@@ -246,6 +245,21 @@ namespace SKORengar
                     E.Cast(target);
                 }
             }
+            if (Config.Item("UseItems").GetValue<bool>())
+            {
+                BKR.Cast(target);
+                YOU.Cast();
+                BWC.Cast(target);
+                SOD.Cast();
+                if (Player.Distance(target) <= HDR.Range)
+                {
+                    HDR.Cast(target);
+                }
+                if (Player.Distance(target) <= TMT.Range)
+                {
+                    TMT.Cast(target);
+                }
+            }
         }
 
         //Heal
@@ -275,6 +289,7 @@ namespace SKORengar
                 BKR.Cast(target);
                 YOU.Cast();
                 BWC.Cast(target);
+                SOD.Cast();
                 if (Player.Distance(target) <= HDR.Range)
                 {
                     HDR.Cast(target);

@@ -7,16 +7,15 @@ namespace SKONidalee
 
    internal class SKOUpdater
     {
-        private const int localversion = 5;
 
         internal static bool isInitialized;
 
         private static void bgw_DoWork(object sender, DoWorkEventArgs e)
         {
-            Updater updater = new Updater("https://github.com/SKOBoL/LeagueSharp/raw/master/Version/SKONidalee/SKONidalee.version", "https://github.com/SKOBoL/LeagueSharp/raw/master/Build/SKONidalee/SKONidalee.exe", 5);
+            Updater updater = new Updater("https://github.com/SKOBoL/LeagueSharp/raw/master/Version/SKONidalee/SKONidalee.version", "https://github.com/SKOBoL/LeagueSharp/raw/master/Build/SKONidalee/SKONidalee.exe", 7);
             if (!updater.NeedUpdate)
             {
-                Game.PrintChat("<font color='#1d87f2'> SKONidalee: Most recent version ({0}) loaded!", new object[] { 5 });
+                Game.PrintChat("<font color='#1d87f2'> SKONidalee: Most recent version ({0}) loaded!", new object[] { 7 });
             }
             else
             {
