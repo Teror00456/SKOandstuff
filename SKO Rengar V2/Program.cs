@@ -139,7 +139,7 @@ namespace SKO_Rengar_V2
 
 			var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
 
-			Q = new Spell(SpellSlot.Q, Player.AttackRange+90);
+			Q = new Spell(SpellSlot.Q, Player.AttackRange+100);
 			YMG = new Items.Item(3142, Player.AttackRange+50);
 			STD = new Items.Item(3131, Player.AttackRange+50);
 
@@ -201,7 +201,7 @@ namespace SKO_Rengar_V2
 			}
 			if(SKOMenu.Item("activeHarass").GetValue<KeyBind>().Active)
 			{
-				Harass(target);
+				Harass();
 			}
 				
 
@@ -350,8 +350,9 @@ namespace SKO_Rengar_V2
 			}
 		}
 
-		private static void Harass(Obj_AI_Hero target)
+		private static void Harass()
 		{
+            var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
 			if(target.IsValidTarget())
 			{
 				if(Player.Mana <= 4)
@@ -359,8 +360,8 @@ namespace SKO_Rengar_V2
 					if(SKOMenu.Item("UseWH").GetValue<bool>() && W.IsReady() && Player.Distance(target) <= W.Range){
 						W.Cast();
 					}
-					if(SKOMenu.Item("UseEW").GetValue<bool>() && E.IsReady() && Player.Distance(target) <= E.Range){
-						E.Cast(target, PacketCast);
+					if(SKOMenu.Item("UseEH").GetValue<bool>() && E.IsReady() && Player.Distance(target) <= E.Range){
+						E.Cast(target);
 					}
 				}
 				if(Player.Mana == 5)
@@ -369,8 +370,8 @@ namespace SKO_Rengar_V2
 					{
 						W.Cast();
 					}
-					if(SKOMenu.Item("UseEH").GetValue<bool>() && SKOMenu.Item("HPrio").GetValue<StringList>().SelectedIndex == 0 && E.IsReady()){
-						E.Cast(target, PacketCast);
+					if(SKOMenu.Item("UseEH").GetValue<bool>() && SKOMenu.Item("HPrio").GetValue<StringList>().SelectedIndex == 1 && E.IsReady()){
+						E.Cast(target);
 					}
 				}
 			if(SKOMenu.Item("UseItemsHarass").GetValue<bool>()){
