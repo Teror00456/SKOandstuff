@@ -17,10 +17,10 @@ namespace SKO_Rengar_V2
 		private static bool PacketCast;
 		private static Menu SKOMenu;
 		private static bool Recall; 
-		private static SpellSlot IgniteSlot;
-		private static readonly string[] JungleMinions =
+		private static SpellSlot IgniteSlot, TeleportSlot;
+		private static readonly string[] Turrent =
 		{
-			"AncientGolem", "GreatWraith", "Wraith", "LizardElder", "Golem", "Worm", "Dragon", "GiantWolf"
+			"Turret_T1_C_02_A", ""
 		};
 
 		public static void Main (string[] args)
@@ -88,6 +88,7 @@ namespace SKO_Rengar_V2
 
 			var Misc = new Menu("Misc", "Misc");
 			Misc.AddItem(new MenuItem("UsePacket","Use Packet").SetValue(true));
+            Misc.AddItem(new MenuItem("TpREscape", "R + TP Escape").SetValue<KeyBind>(new KeyBind("Z".ToCharArray()[0], KeyBindType.Press)));
 
 			Game.PrintChat("<font color='#07B88C'>SKO Rengar V2 Loaded!</font>");
 
@@ -116,6 +117,7 @@ namespace SKO_Rengar_V2
 			PacketCast = SKOMenu.Item("UsePacket").GetValue<bool>();
 
 			IgniteSlot = Player.GetSpellSlot("SummonerDot");
+            TeleportSlot = Player.GetSpellSlot("SummonerTeleport");
 
 			Game.OnGameUpdate += Game_OnGameUpdate;
 			Drawing.OnDraw += Draw_OnDraw;
@@ -126,6 +128,7 @@ namespace SKO_Rengar_V2
 	
 		private static void Game_OnGameUpdate(EventArgs args)
 		{
+			TPREscape();
 
 			if(SKOMenu.Item("activeClear").GetValue<KeyBind>().Active)
 			{
@@ -148,6 +151,7 @@ namespace SKO_Rengar_V2
 
 			if(SKOMenu.Item("activeCombo").GetValue<KeyBind>().Active)
 			{
+
 				if(target.IsValidTarget())
 				{
 					if(Player.Mana <= 4)
@@ -301,6 +305,25 @@ namespace SKO_Rengar_V2
 			}
 		}
 
+
+		private static void TPREscape()
+		{
+			if (SKOMenu.Item("TpREscape").GetValue<KeyBind>().Active) 
+			{
+				if (R.IsReady() && Player.SummonerSpellbook.CanUseSpell(TeleportSlot) == SpellState.Ready) 
+				{
+					R.Cast();
+
+					foreach (Obj_AI_Turret turrenttp in ObjectManager.Get<Obj_AI_Turret>()) 
+					{
+						if (turrenttp.IsAlly && turrenttp.Name == "Turret_T1_C_02_A" || turrenttp.Name == "Turret_T2_C_01_A")
+						{
+							Player.SummonerSpellbook.CastSpell(TeleportSlot, turrenttp);
+						}
+					}
+				}
+			}
+		}
 
 		private static void Clear()
 		{
