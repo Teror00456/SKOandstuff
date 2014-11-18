@@ -117,8 +117,6 @@ namespace SKO_Rengar_V2
 
 			Game.OnGameUpdate += Game_OnGameUpdate;
 			Drawing.OnDraw += Draw_OnDraw;
-			Obj_AI_Hero.OnCreate += OnCreateObj;
-			Obj_AI_Hero.OnDelete += OnDeleteObj;
 		}
 
 	
@@ -461,7 +459,7 @@ namespace SKO_Rengar_V2
 
 		private static void AutoHeal()
 		{
-            if (!Player.HasBuff("Recall")) return;
+            if (Player.HasBuff("Recall")) return;
 			if(Player.Mana <= 4)return;
 
 			if(SKOMenu.Item("UseAutoW").GetValue<bool>() && Player.Mana == 5 && !Recall)
