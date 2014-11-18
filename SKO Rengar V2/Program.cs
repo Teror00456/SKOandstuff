@@ -18,10 +18,6 @@ namespace SKO_Rengar_V2
 		private static Menu SKOMenu;
 		private static bool Recall; 
 		private static SpellSlot IgniteSlot, TeleportSlot;
-		private static readonly string[] Turrent =
-		{
-			"Turret_T1_C_02_A", ""
-		};
 
 		public static void Main (string[] args)
 		{
@@ -465,6 +461,7 @@ namespace SKO_Rengar_V2
 
 		private static void AutoHeal()
 		{
+            if (!Player.HasBuff("Recall")) return;
 			if(Player.Mana <= 4)return;
 
 			if(SKOMenu.Item("UseAutoW").GetValue<bool>() && Player.Mana == 5 && !Recall)
@@ -473,27 +470,6 @@ namespace SKO_Rengar_V2
 				{
 					W.Cast();
 				}
-			}
-		}
-
-		private static void OnCreateObj(GameObject sender, EventArgs args)
-		{
-			//Recall
-			if (!(sender is Obj_GeneralParticleEmmiter)) return;
-			var obj = (Obj_GeneralParticleEmmiter)sender;
-			if (obj != null && obj.IsMe && obj.Name == "TeleportHome")
-			{
-				Recall = true;
-			}
-		}
-		private static void OnDeleteObj(GameObject sender, EventArgs args)
-		{
-			//Recall
-			if (!(sender is Obj_GeneralParticleEmmiter)) return;
-			var obj = (Obj_GeneralParticleEmmiter)sender;
-			if (obj != null && obj.IsMe && obj.Name == "TeleportHome")
-			{
-				Recall = false;
 			}
 		}
 			

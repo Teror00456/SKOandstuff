@@ -34,11 +34,8 @@ namespace SKO_Galio
             Player = ObjectManager.Player;
             if (Player.BaseSkinName != ChampionName) return;
 
-
-
-
             Q = new Spell(SpellSlot.Q, 940f);
-            W = new Spell(SpellSlot.W, 800f);
+            W = new Spell(SpellSlot.W, 700f);
             E = new Spell(SpellSlot.E, 1180f);
             R = new Spell(SpellSlot.R, 560f);
 
@@ -74,7 +71,8 @@ namespace SKO_Galio
             //Combo
             Config.AddSubMenu(new Menu("Combo", "Combo"));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W")).SetValue(true);
+			Config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W")).SetValue(true);
+			Config.SubMenu("Combo").AddItem(new MenuItem("WMode", "W mode")).SetValue<StringList>(new StringList(new[] {"Always", "Ultimate"}, 1));
             Config.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R")).SetValue(true);
             Config.SubMenu("Combo").AddItem(new MenuItem("MinEnemys", "Min enemys for R")).SetValue(new Slider(3, 5, 1));
@@ -127,29 +125,46 @@ namespace SKO_Galio
 
         private static void OnGameUpdate(EventArgs args)
         {
+			PacketCast = Config.Item("UsePacket").GetValue<bool>();
+
             Orbwalker.SetAttack(true);
 
-            PacketCast = Config.Item("UsePacket").GetValue<bool>();
+			var allminions = MinionManager.GetMinions(Player.ServerPosition, 1000, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.MaxHealth);
+
+			if(Config.Item("ActiveLane").GetValue<KeyBind>().Active)
+			{
+				foreach(var m in allminions)
+				{
+					if(m.IsValidTarget())
+					{
+						if(Q.IsReady() && Config.Item("UseQLane").GetValue<bool>() && Player.Distance(m) <= Q.Range)
+						{
+							Q.CastOnUnit(m, PacketCast);
+						}
+						if(E.IsReady() && Config.Item("UseELane").GetValue<bool>() && Player.Distance(m) <= E.Range)
+						{
+							E.Cast(m, PacketCast);
+						}
+					}
+				}
+			}
+
+			var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 
             if (Config.Item("ActiveCombo").GetValue<KeyBind>().Active) {
-                Combo();
+				Combo(target);
             }
             if (Config.Item("ActiveHarass").GetValue<KeyBind>().Active)
             {
-                Harass();
+				Harass(target);
             }
             if (Config.Item("ActiveKs").GetValue<bool>())
             {
-                KillSteal();
-            }
-            if (Config.Item("ActiveFarm").GetValue<KeyBind>().Active)
-            {
-                Farm();
+				KillSteal(target);
             }
         }
 
-        private static void Combo() {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+		private static void Combo(Obj_AI_Hero target) {
             if (!Player.HasBuff("GalioIdolOfDurand")) {
                 Orbwalker.SetMovement(true);
             }
@@ -160,24 +175,29 @@ namespace SKO_Galio
                 {
                     Q.Cast(target, PacketCast);
                 }
-                else if (E.IsReady() && Player.Distance(target) <= E.Range && Config.Item("UseECombo").GetValue<bool>())
+                if (E.IsReady() && Player.Distance(target) <= E.Range && Config.Item("UseECombo").GetValue<bool>())
                 {
                     E.Cast(target, PacketCast);
-                }else if (R.IsReady() && GetEnemys(target) >= Config.Item("MinEnemys").GetValue<Slider>().Value && Config.Item("UseRCombo").GetValue<bool>())
+                } 
+				if (Config.Item("UseWCombo").GetValue<bool>() && Config.Item("WMode").GetValue<StringList>().SelectedIndex == 0 && W.IsReady())
+				{
+					W.Cast(Player);
+				}
+					
+				if (R.IsReady() && GetEnemys(target) >= Config.Item("MinEnemys").GetValue<Slider>().Value && Config.Item("UseRCombo").GetValue<bool>())
                 {
                     Orbwalker.SetMovement(false);
                     R.Cast(target, PacketCast, true);
-                    if (Config.Item("UseWCombo").GetValue<bool>())
-                    {
-                        W.Cast(Player);
-                    }
+					if (Config.Item("UseWCombo").GetValue<bool>() && Config.Item("WMode").GetValue<StringList>().SelectedIndex == 1 && W.IsReady())
+					{
+						W.Cast(Player);
+					}
                 }
             
             }
         }
 
-        private static void Harass(){
-        var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+		private static void Harass(Obj_AI_Hero target){
             if (target.IsValidTarget()){
                 if (Q.IsReady() && Player.Distance(target) <= Q.Range && Config.Item("UseQHarass").GetValue<bool>())
                 {
@@ -189,29 +209,9 @@ namespace SKO_Galio
                 }
             }
         }
+			
 
-        private static void Farm() {
-            var AllMinions = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Enemy, MinionOrderTypes.Health);
-
-            
-                foreach(var minion in AllMinions){
-
-                    if (minion.IsValidTarget()) { 
-                    if (Config.Item("UseQLane").GetValue<bool>() && Q.IsReady() && Player.Distance(minion) <= Q.Range) {
-                        Q.Cast(minion, PacketCast);
-                    }
-                    if (Config.Item("UseELane").GetValue<bool>() && E.IsReady() && Player.Distance(minion) <= E.Range)
-                    {
-                        E.Cast(minion, PacketCast);
-                    }
-                    }
-                }
-            
-
-        }
-
-        private static void KillSteal() {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+		private static void KillSteal(Obj_AI_Hero target) {
             var IgniteDmg = Damage.GetSummonerSpellDamage(Player, target, Damage.SummonerSpell.Ignite);
             var QDmg = Damage.GetSpellDamage(Player, target, SpellSlot.Q);
             var EDmg = Damage.GetSpellDamage(Player, target, SpellSlot.E);
