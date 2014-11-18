@@ -14,20 +14,14 @@ namespace SKO_Galio
     class Program
     {
         private const string ChampionName = "Galio";
-
         private static Menu Config;
-
         private static Orbwalking.Orbwalker Orbwalker;
-
         private static List<Spell> SpellList = new List<Spell>();
-
         private static Spell Q, W, E, R;
-
         private static Items.Item DFG, HDR, BKR, BWC, YOU;
-
         private static Obj_AI_Hero Player;
-
         private static SpellSlot IgniteSlot;
+        private static bool PacketCast;
 
 
         static void Main(string[] args)
@@ -40,7 +34,8 @@ namespace SKO_Galio
             Player = ObjectManager.Player;
             if (Player.BaseSkinName != ChampionName) return;
 
-            SKOUpdater.InitializeSKOUpdate();
+
+
 
             Q = new Spell(SpellSlot.Q, 940f);
             W = new Spell(SpellSlot.W, 800f);
@@ -88,8 +83,8 @@ namespace SKO_Galio
 
             //Extra
             Config.AddSubMenu(new Menu("Extra", "Extra"));
-            Config.SubMenu("Extra").AddItem(new MenuItem("AutoShield", "Auto Shield")).SetValue(true);
-
+            Config.SubMenu("Extra").AddItem(new MenuItem("AutoShield", "Auto Shield(WIP)")).SetValue(false);
+            Config.SubMenu("Extra").AddItem(new MenuItem("UsePacket", "Use Packets").SetValue(true));
 
 
             //Harass
@@ -126,13 +121,15 @@ namespace SKO_Galio
             Game.OnGameUpdate += OnGameUpdate;
             Drawing.OnDraw += OnDraw;
 
+            Game.PrintChat("SKO Galio Loaded!");
 
         }
 
         private static void OnGameUpdate(EventArgs args)
         {
-            Orbwalker.SetAttacks(true);
-            //Orbwalker.SetMovement(true);
+            Orbwalker.SetAttack(true);
+
+            PacketCast = Config.Item("UsePacket").GetValue<bool>();
 
             if (Config.Item("ActiveCombo").GetValue<KeyBind>().Active) {
                 Combo();
@@ -157,19 +154,19 @@ namespace SKO_Galio
                 Orbwalker.SetMovement(true);
             }
 
-            if (target != null) 
+            if (target.IsValidTarget()) 
             {
                 if (Q.IsReady() && Player.Distance(target) <= Q.Range && Config.Item("UseQCombo").GetValue<bool>())
                 {
-                    Q.Cast(target);
+                    Q.Cast(target, PacketCast);
                 }
                 else if (E.IsReady() && Player.Distance(target) <= E.Range && Config.Item("UseECombo").GetValue<bool>())
                 {
-                    E.Cast(target);
+                    E.Cast(target, PacketCast);
                 }else if (R.IsReady() && GetEnemys(target) >= Config.Item("MinEnemys").GetValue<Slider>().Value && Config.Item("UseRCombo").GetValue<bool>())
                 {
                     Orbwalker.SetMovement(false);
-                    R.Cast(target, false, true);
+                    R.Cast(target, PacketCast, true);
                     if (Config.Item("UseWCombo").GetValue<bool>())
                     {
                         W.Cast(Player);
@@ -181,14 +178,14 @@ namespace SKO_Galio
 
         private static void Harass(){
         var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            if (target != null){
+            if (target.IsValidTarget()){
                 if (Q.IsReady() && Player.Distance(target) <= Q.Range && Config.Item("UseQHarass").GetValue<bool>())
                 {
-                    Q.Cast(target);
+                    Q.Cast(target, PacketCast);
                 }
                 else if (E.IsReady() && Player.Distance(target) <= E.Range && Config.Item("UseEHarass").GetValue<bool>())
                 {
-                    E.Cast(target);
+                    E.Cast(target, PacketCast);
                 }
             }
         }
@@ -199,12 +196,14 @@ namespace SKO_Galio
             
                 foreach(var minion in AllMinions){
 
+                    if (minion.IsValidTarget()) { 
                     if (Config.Item("UseQLane").GetValue<bool>() && Q.IsReady() && Player.Distance(minion) <= Q.Range) {
-                        Q.Cast(minion);
+                        Q.Cast(minion, PacketCast);
                     }
                     if (Config.Item("UseELane").GetValue<bool>() && E.IsReady() && Player.Distance(minion) <= E.Range)
                     {
-                        E.Cast(minion);
+                        E.Cast(minion, PacketCast);
+                    }
                     }
                 }
             
@@ -213,11 +212,11 @@ namespace SKO_Galio
 
         private static void KillSteal() {
             var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var IgniteDmg = DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
-            var QDmg = DamageLib.getDmg(target, DamageLib.SpellType.Q);
-            var EDmg = DamageLib.getDmg(target, DamageLib.SpellType.E);
+            var IgniteDmg = Damage.GetSummonerSpellDamage(Player, target, Damage.SummonerSpell.Ignite);
+            var QDmg = Damage.GetSpellDamage(Player, target, SpellSlot.Q);
+            var EDmg = Damage.GetSpellDamage(Player, target, SpellSlot.E);
 
-            if (target != null)
+            if (target.IsValidTarget())
             {
                 if (Config.Item("UseIgnite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
                 Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
@@ -230,14 +229,14 @@ namespace SKO_Galio
 
                 if (Config.Item("UseQKs").GetValue<bool>() && Q.IsReady()) {
                     if (QDmg >= target.Health) {
-                        Q.Cast(target);
+                        Q.Cast(target, PacketCast);
                     }
                 }
                 if (Config.Item("UseEKs").GetValue<bool>() && E.IsReady())
                 {
                     if (EDmg >= target.Health)
                     {
-                        E.Cast(target);
+                        E.Cast(target, PacketCast);
                     }
                 }
             }
