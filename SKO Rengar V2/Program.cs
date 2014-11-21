@@ -99,10 +99,10 @@ namespace SKO_Rengar_V2
 			SKOMenu.AddToMainMenu();
 
 			W = new Spell(SpellSlot.W, 450f);
-			E = new Spell(SpellSlot.E, 1000f);
+			E = new Spell(SpellSlot.E, 980f);
 			R = new Spell(SpellSlot.R, 2000f);
 
-			E.SetSkillshot(.5f, 70f, 1500f, true, SkillshotType.SkillshotLine);
+            E.SetSkillshot(0.25f, 70f, 1500f, true, SkillshotType.SkillshotLine);
 
 			HYD = new Items.Item(3074, 420f);
 			TMT = new Items.Item(3077, 420f);
@@ -455,7 +455,6 @@ namespace SKO_Rengar_V2
 
 		}
 		}
-			
 
 		private static void AutoHeal()
 		{
