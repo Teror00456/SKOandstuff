@@ -13,35 +13,17 @@ namespace SKO_Ban_Karma
 {
     class Program
     {
-        //TEM QUE BANIR KARMAR CARALHO
+        private const string ChampionName = "Karma";
 
-        private const string ChampionName = "Karma"; //OP
+        private static Spell Q, W, E, R;
 
-        private static List<Spell> SpellList = new List<Spell>();
-
-        private static Spell Q;
-
-        private static Spell W;
-
-        private static Spell E;
-
-        private static Spell R;
-
-        private static Menu Config;
+        private static Menu SKOMenu;
 
         private static Orbwalking.Orbwalker Orbwalker;
 
         private static Obj_AI_Hero Player;
 
-        private static Items.Item HDR;
-
-        private static Items.Item BKR;
-
-        private static Items.Item BWC;
-
-        private static Items.Item YOU;
-
-        private static Items.Item DFG;
+        private static Items.Item BKR, BWC, YOU, DFG, FQC;
 
         private static SpellSlot IgniteSlot;
 
@@ -65,69 +47,67 @@ namespace SKO_Ban_Karma
             Q.SetSkillshot(0.25f, 70, 1800, true, SkillshotType.SkillshotLine);
 
 
-            SpellList.Add(Q);
-            SpellList.Add(W);
-            SpellList.Add(E);
-            SpellList.Add(R);
-
             BKR = new Items.Item(3153, 450f);
             BWC = new Items.Item(3144, 450f);
             YOU = new Items.Item(3142, 185f);
             DFG = new Items.Item(3128, 750f);
+            FQC = new Items.Item(3092, 850f);
 
             IgniteSlot = Player.GetSpellSlot("SummonetDot");
 
             //SKO SKO Ban Karma
-            Config = new Menu(ChampionName, "SKOBanKarma", true);
+            SKOMenu = new Menu(ChampionName, "SKOBanKarma", true);
 
             //TargetSelector
-            var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
+            var targetSelectorMenu = new Menu("Target Selector", "TargetSelector");
             SimpleTs.AddToMenu(targetSelectorMenu);
-            Config.AddSubMenu(targetSelectorMenu);
+            SKOMenu.AddSubMenu(targetSelectorMenu);
 
             //Orbwalker
-            Config.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
-            Orbwalker = new Orbwalking.Orbwalker(Config.SubMenu("Orbwalking"));
+            SKOMenu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
+            Orbwalker = new Orbwalking.Orbwalker(SKOMenu.SubMenu("Orbwalking"));
 
             //Combo
-            Config.AddSubMenu(new Menu("Combo", "Combo"));
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseItems", "Use Items")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
+            SKOMenu.AddSubMenu(new Menu("Combo", "Combo"));
+            SKOMenu.SubMenu("Combo").AddItem(new MenuItem("UseQCombo", "Use Q")).SetValue(true);
+            SKOMenu.SubMenu("Combo").AddItem(new MenuItem("UseWCombo", "Use W")).SetValue(true);
+            SKOMenu.SubMenu("Combo").AddItem(new MenuItem("UseECombo", "Use E")).SetValue(true);
+            SKOMenu.SubMenu("Combo").AddItem(new MenuItem("UseRCombo", "Use R")).SetValue(true);
+            SKOMenu.SubMenu("Combo").AddItem(new MenuItem("Support", "Support Mode")).SetValue(false);
+            SKOMenu.SubMenu("Combo").AddItem(new MenuItem("UseAutoW", "Auto W")).SetValue(true);
+            SKOMenu.SubMenu("Combo").AddItem(new MenuItem("AutoWHp", "Auto W HP %")).SetValue<Slider>(new Slider(40, 1, 100));
+            SKOMenu.SubMenu("Combo").AddItem(new MenuItem("UseItems", "Use Items")).SetValue(true);
+            SKOMenu.SubMenu("Combo").AddItem(new MenuItem("ActiveCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
             //Harass
-            Config.AddSubMenu(new Menu("Harass", "Harass"));
-            Config.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q")).SetValue(true);
-            Config.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W")).SetValue(true);
-            Config.SubMenu("Combo").AddItem(new MenuItem("UseRHarass", "Use R")).SetValue(true);
-            Config.SubMenu("Harass").AddItem(new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
+            SKOMenu.AddSubMenu(new Menu("Harass", "Harass"));
+            SKOMenu.SubMenu("Harass").AddItem(new MenuItem("UseQHarass", "Use Q")).SetValue(true);
+            SKOMenu.SubMenu("Harass").AddItem(new MenuItem("UseWHarass", "Use W")).SetValue(true);
+            SKOMenu.SubMenu("Harass").AddItem(new MenuItem("UseRHarass", "Use R")).SetValue(true);
+            SKOMenu.SubMenu("Harass").AddItem(new MenuItem("ActiveHarass", "Harass key").SetValue(new KeyBind("X".ToCharArray()[0], KeyBindType.Press)));
 
             //Farm
-            Config.AddSubMenu(new Menu("Lane Clear", "Lane"));
-            Config.SubMenu("Lane").AddItem(new MenuItem("UseQLane", "Use Q")).SetValue(true);
-
-            Config.SubMenu("Lane").AddItem(new MenuItem("ActiveLane", "Lane Key").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
+            SKOMenu.AddSubMenu(new Menu("Lane Clear", "Lane"));
+            SKOMenu.SubMenu("Lane").AddItem(new MenuItem("UseQLane", "Use Q")).SetValue(true);
+            SKOMenu.SubMenu("Lane").AddItem(new MenuItem("ActiveLane", "Lane Key").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
 
             //Kill Steal
-            Config.AddSubMenu(new Menu("KillSteal", "Ks"));
-            Config.SubMenu("Ks").AddItem(new MenuItem("ActiveKs", "Use KillSteal")).SetValue(true);
-            Config.SubMenu("Ks").AddItem(new MenuItem("UseQKs", "Use Q")).SetValue(true);
-            Config.SubMenu("Ks").AddItem(new MenuItem("UseIgnite", "Use Ignite")).SetValue(true);
+            SKOMenu.AddSubMenu(new Menu("KillSteal", "Ks"));
+            SKOMenu.SubMenu("Ks").AddItem(new MenuItem("ActiveKs", "Use KillSteal")).SetValue(true);
+            SKOMenu.SubMenu("Ks").AddItem(new MenuItem("UseQKs", "Use Q")).SetValue(true);
+            SKOMenu.SubMenu("Ks").AddItem(new MenuItem("UseIgnite", "Use Ignite")).SetValue(true);
 
 
             //Drawings
-            Config.AddSubMenu(new Menu("Drawings", "Drawings"));
-            Config.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
-            Config.SubMenu("Drawings").AddItem(new MenuItem("DrawW", "Draw W")).SetValue(true);
-            Config.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
-            Config.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
-            Config.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
-            Config.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
+            SKOMenu.AddSubMenu(new Menu("Drawings", "Drawings"));
+            SKOMenu.SubMenu("Drawings").AddItem(new MenuItem("DrawQ", "Draw Q")).SetValue(true);
+            SKOMenu.SubMenu("Drawings").AddItem(new MenuItem("DrawW", "Draw W")).SetValue(true);
+            SKOMenu.SubMenu("Drawings").AddItem(new MenuItem("DrawE", "Draw E")).SetValue(true);
+            SKOMenu.SubMenu("Drawings").AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
+            SKOMenu.SubMenu("Drawings").AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
+            SKOMenu.SubMenu("Drawings").AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
 
-            Config.AddToMainMenu();
+            SKOMenu.AddToMainMenu();
 
             Game.OnGameUpdate += OnGameUpdate;
             Drawing.OnDraw += OnDraw;
@@ -137,118 +117,150 @@ namespace SKO_Ban_Karma
 
         private static void OnGameUpdate(EventArgs args) 
         {
-            if (Config.Item("ActiveCombo").GetValue<KeyBind>().Active)
+
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            if (SKOMenu.Item("ActiveCombo").GetValue<KeyBind>().Active)
             {
-                Combo();
+                Combo(target);
             }
-            if (Config.Item("ActiveHarass").GetValue<KeyBind>().Active)
+            if (SKOMenu.Item("ActiveHarass").GetValue<KeyBind>().Active)
             {
-                Harass();
+                Harass(target);
             }
-            if (Config.Item("ActiveLane").GetValue<KeyBind>().Active)
+            if (SKOMenu.Item("ActiveLane").GetValue<KeyBind>().Active)
             {
                 Farm();
             }
-            if (Config.Item("ActiveKs").GetValue<bool>())
+            if (SKOMenu.Item("ActiveKs").GetValue<bool>())
             {
-                KillSteal();
+                KillSteal(target);
             }
-            AutoW();
+            AutoW(target);
         }
 
-        private static void Combo() {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+        private static void Combo(Obj_AI_Hero target) {
 
-            if (Config.Item("UseItems").GetValue<bool>())
+            if (SKOMenu.Item("UseItems").GetValue<bool>())
             {
                 BKR.Cast(target);
                 YOU.Cast();
                 BWC.Cast(target);
                 DFG.Cast(target);
-            }
+                FQC.Cast(target);
 
-            if(W.IsReady() && Player.Distance(target) <= W.Range && Config.Item("UseWCombo").GetValue<bool>()){
-                W.Cast(target);
             }
-            if (Q.IsReady() && Player.Distance(target) <= Q.Range && Config.Item("UseQCombo").GetValue<bool>()) 
+            if (SKOMenu.Item("UseQCombo").GetValue<bool>() && Q.IsReady()) 
             {
-                if (Config.Item("UseRCombo").GetValue<bool>() && Player.HasBuff("KarmaMantra") && !Q.Collision)
+                if (SKOMenu.Item("UseRCombo").GetValue<bool>() && R.IsReady()) 
                 {
+                    if(Player.Distance(target) <= Q.Range && Q.IsReady()){
                     R.Cast();
-                    Q.Cast(target);
+                    }
                 }
-                else {
-                    R.Cast();
+                 if (Player.Distance(target) <= Q.Range && Player.HasBuff("KarmaMantra")) 
+                  {
                     Q.Cast(target);
+                  }else{
+                    Q.Cast(target);
+                  }
+            }
+            if (SKOMenu.Item("UseWCombo").GetValue<bool>() && W.IsReady()) 
+            {
+                if (Player.Distance(target) <= W.Range && !Player.HasBuff("KarmaMantra")) 
+                {
+                    W.Cast(target);
                 }
             }
-            if (E.IsReady() && Config.Item("UseECombo").GetValue<bool>() && Player.Distance(target) > W.Range && !Player.HasBuff("KarmaMantra")) {
- 
+            if (!Player.HasBuff("KarmaMantra") && SKOMenu.Item("UseECombo").GetValue<bool>() && !SKOMenu.Item("Support").GetValue<bool>())
+            {
+                if(E.IsReady() && !E.Collision)
                     E.Cast(Player);
             }
 
         }
-        private static void AutoW() {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+        private static void AutoW(Obj_AI_Hero target) {
+            if (Player.HasBuff("Recall")) return;
             //Auto W
-            if (Player.Health <= Player.MaxHealth * 0.70 && Player.HasBuff("KarmaMantra") && Config.Item("UseWCombo").GetValue<bool>())
+            if (Player.Health <= (Player.MaxHealth * (SKOMenu.Item("AutoWHp").GetValue<Slider>().Value) / 100))
             {
-                if (W.IsReady() && Player.Distance(target) <= W.Range)
+                if (SKOMenu.Item("AutoW").GetValue<bool>() && W.IsReady())
                 {
-                    R.Cast();
-                    W.Cast(target);
+                    if(R.IsReady() && Player.Distance(target) <= W.Range){
+                        R.Cast();
+                    }
+                    if(Player.Distance(target) <= W.Range && Player.HasBuff("KarmaMantra"))
+                    {
+                        W.Cast(target);
+                    }
+                }
+            }
+        }
+        private static void Harass(Obj_AI_Hero target)
+        {
+            if (SKOMenu.Item("UseItems").GetValue<bool>())
+            {
+                BKR.Cast(target);
+                YOU.Cast();
+                BWC.Cast(target);
+                DFG.Cast(target);
+                FQC.Cast(target);
 
-                }
             }
-        }
-        private static void Harass()
-        {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            if (W.IsReady() && Player.Distance(target) <= W.Range && Config.Item("UseWHarass").GetValue<bool>())
+            if (SKOMenu.Item("UseQHarass").GetValue<bool>() && Q.IsReady())
             {
-                W.Cast(target);
-            }
-            if (Q.IsReady() && Player.Distance(target) <= Q.Range)
-            {
-                if (Config.Item("UseRHarass").GetValue<bool>() && Player.HasBuff("KarmaMantra"))
+                if (SKOMenu.Item("UseRHarass").GetValue<bool>() && R.IsReady()) 
                 {
+                   if(Player.Distance(target) <= Q.Range){
                     R.Cast();
-                    Q.Cast(target);
+                    }
                 }
-                else
-                {
-                    R.Cast();
+                 if (Player.Distance(target) <= Q.Range && Player.HasBuff("KarmaMantra")) 
+                  {
                     Q.Cast(target);
-                }
+                  }else{
+                    Q.Cast(target);
+                  }
             }
-        }
-        private static void KillSteal()
-        {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
-            var igniteDmg = DamageLib.getDmg(target, DamageLib.SpellType.IGNITE);
-            var QDmg = DamageLib.getDmg(target, DamageLib.SpellType.Q);
-            if (target != null && Config.Item("UseIgnite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-            Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+            if (SKOMenu.Item("UseWHarass").GetValue<bool>() && W.IsReady())
             {
-                if (igniteDmg > target.Health)
+                if (Player.Distance(target) <= W.Range)
                 {
-                    Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    W.Cast(target);
                 }
             }
-            
-            if (Config.Item("UseQKs").GetValue<bool>() && target != null && Q.IsReady() && Player.Distance(target) <= Q.Range) {
-                if (target.Health < QDmg) {
-                    Q.Cast(target);
+
+        }
+        private static void KillSteal(Obj_AI_Hero target)
+        {
+            var igniteDmg = Damage.GetSummonerSpellDamage(Player, target, Damage.SummonerSpell.Ignite);
+            var QDmg = Damage.GetSpellDamage(Player, target, SpellSlot.Q);
+
+            if (target.IsValidTarget())
+            {
+                if (SKOMenu.Item("UseIgnite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
+                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                {
+                    if (igniteDmg > target.Health)
+                    {
+                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                    }
+                }
+
+                if (SKOMenu.Item("UseQKs").GetValue<bool>() && Player.Distance(target) <= Q.Range)
+                {
+                    if (Q.IsReady() && target.Health < QDmg) 
+                    {
+                        Q.Cast();
+                    }
                 }
             }
 
         }
         private static void Farm()
         {
-            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             var allminions = MinionManager.GetMinions(Player.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Enemy, MinionOrderTypes.Health);
 
-            if (Config.Item("UseQLane").GetValue<bool>())
+            if (SKOMenu.Item("UseQLane").GetValue<bool>())
             {
                 foreach (var minion in allminions)
                 {
@@ -262,38 +274,38 @@ namespace SKO_Ban_Karma
         }
         private static void OnDraw(EventArgs args)
         {
-            if (Config.Item("CircleLag").GetValue<bool>())
+            if (SKOMenu.Item("CircleLag").GetValue<bool>())
             {
-                if (Config.Item("DrawQ").GetValue<bool>())
+                if (SKOMenu.Item("DrawQ").GetValue<bool>())
                 {
                     Utility.DrawCircle(ObjectManager.Player.Position, Q.Range, System.Drawing.Color.White,
-                        Config.Item("CircleThickness").GetValue<Slider>().Value,
-                        Config.Item("CircleQuality").GetValue<Slider>().Value);
+                        SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
+                        SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
                 }
-                if (Config.Item("DrawW").GetValue<bool>())
+                if (SKOMenu.Item("DrawW").GetValue<bool>())
                 {
                     Utility.DrawCircle(ObjectManager.Player.Position, W.Range, System.Drawing.Color.White,
-                        Config.Item("CircleThickness").GetValue<Slider>().Value,
-                        Config.Item("CircleQuality").GetValue<Slider>().Value);
+                        SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
+                        SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
                 }
-                if (Config.Item("DrawE").GetValue<bool>())
+                if (SKOMenu.Item("DrawE").GetValue<bool>())
                 {
                     Utility.DrawCircle(ObjectManager.Player.Position, E.Range, System.Drawing.Color.White,
-                        Config.Item("CircleThickness").GetValue<Slider>().Value,
-                        Config.Item("CircleQuality").GetValue<Slider>().Value);
+                        SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
+                        SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
                 }
             }
             else
             {
-                if (Config.Item("DrawQ").GetValue<bool>())
+                if (SKOMenu.Item("DrawQ").GetValue<bool>())
                 {
                     Drawing.DrawCircle(ObjectManager.Player.Position, Q.Range, System.Drawing.Color.White);
                 }
-                if (Config.Item("DrawW").GetValue<bool>())
+                if (SKOMenu.Item("DrawW").GetValue<bool>())
                 {
                     Drawing.DrawCircle(ObjectManager.Player.Position, W.Range, System.Drawing.Color.White);
                 }
-                if (Config.Item("DrawE").GetValue<bool>())
+                if (SKOMenu.Item("DrawE").GetValue<bool>())
                 {
                     Drawing.DrawCircle(ObjectManager.Player.Position, E.Range, System.Drawing.Color.White);
                 }
