@@ -65,9 +65,11 @@ namespace VallySKO_Gnar
             var Combo = new Menu("Combo", "Combo");
             Combo.AddItem(new MenuItem("UseQ", "Use Q").SetValue(true));
             Combo.AddItem(new MenuItem("UseW", "Use W").SetValue(true));
-            Combo.AddItem(new MenuItem("UseE", "Use E").SetValue(false));
+			Combo.AddItem(new MenuItem("UseE", "Use E").SetValue(true));
+			Combo.AddItem(new MenuItem("UseEunder", "Use E if target under turrent ?").SetValue(true));
             Combo.AddItem(new MenuItem("UseR", "Use R").SetValue(true));
-            Combo.AddItem(new MenuItem("MinRenemys", "Min enemys").SetValue<Slider>(new Slider(3, 1, 5)));
+            Combo.AddItem(new MenuItem("AutoR", "Auto Ultimate").SetValue(true));
+            Combo.AddItem(new MenuItem("MinRenemys", "Min enemys").SetValue(new Slider(3, 1, 5)));
             Combo.AddItem(new MenuItem("UseItemsCombo", "Use Items").SetValue(true));
             Combo.AddItem(new MenuItem("activeCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
@@ -79,6 +81,7 @@ namespace VallySKO_Gnar
 
             var JLClear = new Menu("Jungle/Lane Clear", "JLClear");
             JLClear.AddItem(new MenuItem("UseQC", "Use Q").SetValue(true));
+			//JLClear.AddItem(new MenuItem("UseQClh", "Use Q only for LastHit").SetValue(true));
             JLClear.AddItem(new MenuItem("UseWC", "Use W").SetValue(true));
             JLClear.AddItem(new MenuItem("UseItemsClear", "Use Items").SetValue(true));
             JLClear.AddItem(new MenuItem("activeClear", "Clear!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
@@ -142,6 +145,11 @@ namespace VallySKO_Gnar
             if (SKOMenu.Item("activeHarass").GetValue<KeyBind>().Active)
             {
                 Harass(target);
+            }
+
+			if (SKOMenu.Item("AutoR").GetValue<bool>() && player.CountEnemysInRange(500) >= SKOMenu.Item("MinRenemys").GetValue<Slider>().Value)
+            {
+                CastR(target);
             }
 
             KillSteal(target);
@@ -283,14 +291,20 @@ namespace VallySKO_Gnar
         {
             var allminions = MinionManager.GetMinions(player.ServerPosition, MiniQ.Range, MinionTypes.All,
                 MinionTeam.NotAlly, MinionOrderTypes.MaxHealth);
+            
 
             foreach (var minions in allminions)
             {
-                if (minions.IsValidTarget(MegaQ.Range) && MegaGnar)
+                var qDmg = player.GetSpellDamage(minions, SpellSlot.Q);
+				var qpredmin = MiniQ.GetPrediction(minions);
+				var qpredmeg = MegaQ.GetPrediction(minions);
+
+				if (minions.IsValidTarget(MegaQ.Range) && MegaGnar)
                 {
                     if (SKOMenu.Item("UseQC").GetValue<bool>() && MegaQ.IsReady() && player.Distance(minions) <= MegaQ.Range)
                     {
-                        MegaQ.Cast(minions, PacketCast);
+							MegaQ.Cast(minions, PacketCast);
+                        
                     }
                     if (SKOMenu.Item("UseWC").GetValue<bool>() && MegaW.IsReady() && player.Distance(minions) <= MegaW.Range)
                     {
@@ -301,7 +315,8 @@ namespace VallySKO_Gnar
                 {
                     if (SKOMenu.Item("UseQC").GetValue<bool>() && MiniQ.IsReady() && player.Distance(minions) <= MiniQ.Range)
                     {
-                        MiniQ.Cast(minions, PacketCast);
+
+							MegaQ.Cast(minions, PacketCast);
                     }
                 }
                 if (SKOMenu.Item("UseItemsClear").GetValue<bool>())
@@ -385,6 +400,7 @@ namespace VallySKO_Gnar
 
         private static void CastE(Obj_AI_Hero target)
         {
+			if(!SKOMenu.Item("UseEunder").GetValue<bool>() && target.UnderTurret(true))return;
             if ((MegaGnar && !MegaE.IsReady()) || (!MegaGnar && !MiniE.IsReady()) || !target.IsValidTarget(MiniE.Range)) return;
 
             var megaEpred = MegaE.GetPrediction(target);
@@ -407,9 +423,9 @@ namespace VallySKO_Gnar
 
             foreach (
                 var rcoll in ObjectManager.Get<Obj_AI_Hero>()
-                        .Where(unit => unit.IsEnemy && unit.IsValidTarget(R.Width) && player.CountEnemysInRange(500) >= SKOMenu.Item("MinRenemys").GetValue<Slider>().Value))
+				.Where(unit => unit.IsEnemy && unit.IsValidTarget(R.Range)))
             {
-                //Logic by LXMedia
+                /*Logic by LXMedia
                 var enemycenter = rcoll.Position;
                 var playercenter = player.Position;
 
@@ -435,19 +451,56 @@ namespace VallySKO_Gnar
                     {
                         collisionId = i;
                     }
-                    else
-                    {
-                        collisionId = -1;
-                    }
-
-                    if (collisionId == -1) return;
 
                     if (collisionId == i)
                         R.Cast(p, PacketCast);
-                }
+                }*/
+				CastRToCollision(GetCollision(target));
+
             }
                     
         }
+		//Logic by LXMedia
+		private static void CastRToCollision(int collisionId)
+		{
+			if (collisionId == -1)
+				return;
+			var center = player.Position ;
+			const int points = 36;
+			const int radius = 300;
+
+			const double slice = 2 * Math.PI / points;
+			for(var i = 0; i < points; i++)
+			{
+				var angle = slice * i;
+				var newX = (int)(center.X + radius * Math.Cos(angle));
+				var newY = (int)(center.Y + radius * Math.Sin(angle));
+				var p = new Vector3(newX, newY, 0);
+				if (collisionId == i)
+					R.Cast(p, PacketCast);
+			}
+		}
+
+		private static int GetCollision(Obj_AI_Hero enemy)
+		{
+			var center = enemy.Position;
+			const int points = 36;
+			const int radius = 300;
+			var positionList = new List<Vector3>();
+
+			const double slice = 2 * Math.PI / points;
+			for(var i = 0; i < points; i++)
+			{
+				var angle = slice * i;
+				var newX = (int)(center.X + radius * Math.Cos(angle));
+				var newY = (int)(center.Y + radius * Math.Sin(angle));
+				var p = new Vector3(newX, newY, 0);
+
+				if (NavMesh.GetCollisionFlags(p) == CollisionFlags.Wall || NavMesh.GetCollisionFlags(p) == CollisionFlags.Building)
+					return i;
+			}
+			return -1;
+		}
 
     }
 }
