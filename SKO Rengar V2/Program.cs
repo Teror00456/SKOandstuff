@@ -12,11 +12,9 @@ namespace SKO_Rengar_V2
     {
         private static Obj_AI_Hero _player;
         private static Spell Q, W, E, R;
-        private static Items.Item BWC, BRK, RO, YMG, STD, TMT, HYD;
+        private static Items.Item BWC, BRK, RO, YMG, STD, TMT, HYD, DFG;
         private static bool PacketCast;
         private static Menu SKOMenu;
-        private static bool Recall;
-        private static bool canCastQ;
         private static SpellSlot IgniteSlot, TeleportSlot, smiteSlot;
         private static Obj_AI_Hero target;
 
@@ -111,6 +109,7 @@ namespace SKO_Rengar_V2
             BRK = new Items.Item(3153, 450f);
             BWC = new Items.Item(3144, 450f);
             RO = new Items.Item(3143, 500f);
+            DFG = new Items.Item(3128, 750f);
 
 
             IgniteSlot = _player.GetSpellSlot("SummonerDot");
@@ -198,7 +197,7 @@ namespace SKO_Rengar_V2
                     }
 
                     //E if !Q.IsReady()
-                    if (SKOMenu.Item("UseEEm").GetValue<bool>() && !Q.IsReady() && _player.Distance(target) > Q.Range)
+                    if (SKOMenu.Item("UseEEm").GetValue<bool>() && !Q.IsReady() && _player.Distance(target) > Q.Range + 100f || !Q.IsReady())
                     {
                         CastE(target);
                     }
@@ -213,6 +212,7 @@ namespace SKO_Rengar_V2
                     }
                     BWC.Cast(target);
                     BRK.Cast(target);
+                    DFG.Cast(target);
                     RO.Cast(target);
                     YMG.Cast();
                 }
@@ -420,6 +420,7 @@ namespace SKO_Rengar_V2
                     }
                     BWC.Cast(target);
                     BRK.Cast(target);
+                    DFG.Cast(target);
                     RO.Cast(target);
                     YMG.Cast();
                 }
@@ -428,6 +429,12 @@ namespace SKO_Rengar_V2
 
         private static void TripleQ(Obj_AI_Hero target)
         {
+            if (_player.Mana <= 4 || !R.IsReady())
+            {
+                var splayer = Drawing.WorldToScreen(_player.ServerPosition);
+                Drawing.DrawText(splayer.X, splayer.Y, Color.Red, "R is not ready or you do not have 5 ferocity");
+            }
+
             if (target.IsValidTarget())
             {
                 if (_player.Mana == 5 && R.IsReady() && _player.Distance(target) <= R.Range && Q.IsReady())
@@ -465,6 +472,7 @@ namespace SKO_Rengar_V2
                 }
                 BWC.Cast(target);
                 BRK.Cast(target);
+                DFG.Cast(target);
                 RO.Cast(target);
                 YMG.Cast();
 

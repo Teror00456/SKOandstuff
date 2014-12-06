@@ -13,7 +13,7 @@ namespace SKO_Rengar_V2
     {
         private static Obj_AI_Hero player;
         private static Spell Q, W, E, R;
-        private static Items.Item BWC, BRK, RO, YMG, STD, TMT, HYD;
+        private static Items.Item BWC, BRK, RO, YMG, STD, TMT, HYD, DFG;
         private static bool PacketCast;
         private static Menu SKOMenu;
         private static SpellSlot IgniteSlot, TeleportSlot;
@@ -45,6 +45,8 @@ namespace SKO_Rengar_V2
             BRK = new Items.Item(3153, 450f);
             BWC = new Items.Item(3144, 450f);
             RO = new Items.Item(3143, 500f);
+            DFG = new Items.Item(3128, 750f);
+
             SKOMenu = new Menu("SKO Rengar", "SKORengar", true);
 
             var SKOTs = new Menu("Target Selector", "TargetSelector");
@@ -272,6 +274,7 @@ namespace SKO_Rengar_V2
                 BWC.Cast(target);
                 BRK.Cast(target);
                 RO.Cast(target);
+                DFG.Cast(target);
                 YMG.Cast();
             }
 
@@ -314,6 +317,7 @@ namespace SKO_Rengar_V2
                 BWC.Cast(target);
                 BRK.Cast(target);
                 RO.Cast(target);
+                DFG.Cast(target);
                 YMG.Cast();
             }
         }
@@ -457,6 +461,7 @@ namespace SKO_Rengar_V2
             BWC.Cast(target);
             BRK.Cast(target);
             RO.Cast(target);
+            DFG.Cast(target);
             YMG.Cast();
         }
 
