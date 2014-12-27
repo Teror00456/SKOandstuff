@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System.Drawing;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
-using SharpDX;
-using Color = System.Drawing.Color;
 
-namespace SKO_Rengar_V2
+namespace SKO_Rengar_V2_AA_Dix
 {
     class Program
     {
@@ -50,7 +47,7 @@ namespace SKO_Rengar_V2
             SKOMenu = new Menu("SKO Rengar", "SKORengar", true);
 
             var SKOTs = new Menu("Target Selector", "TargetSelector");
-            SimpleTs.AddToMenu(SKOTs);
+            TargetSelector.AddToMenu(SKOTs);
 
             SKOMenu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
             new Orbwalking.Orbwalker(SKOMenu.SubMenu("Orbwalking"));
@@ -143,15 +140,15 @@ namespace SKO_Rengar_V2
             {
                 if (player.Distance(enemy) <= W.Range)
                 {
-                    target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
+                    target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
                 }
                 else if (player.Distance(enemy) <= E.Range)
                 {
-                    target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical); 
+                    target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical); 
                 }
                 else if(player.Distance(enemy) <= R.Range)
                 {
-                    target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+                    target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
                 }
             }
 
@@ -331,11 +328,11 @@ namespace SKO_Rengar_V2
 
             if (target.IsValidTarget())
             {
-                if (SKOMenu.Item("Foguinho").GetValue<bool>() && player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                if (SKOMenu.Item("Foguinho").GetValue<bool>() && player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 {
                     if (igniteDmg > target.Health && player.Distance(target) < 600)
                     {
-                        player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
             }
@@ -483,13 +480,13 @@ namespace SKO_Rengar_V2
         {
             if (SKOMenu.Item("TpREscape").GetValue<KeyBind>().Active)
             {
-                if (R.IsReady() && player.SummonerSpellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
+                if (R.IsReady() && player.Spellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
                 {
                     R.Cast();
 
                     foreach (Obj_AI_Turret turrenttp in ObjectManager.Get<Obj_AI_Turret>().Where(turrenttp => turrenttp.IsAlly && turrenttp.Name == "Turret_T1_C_02_A" || turrenttp.Name == "Turret_T2_C_01_A"))
                     {
-                        player.SummonerSpellbook.CastSpell(TeleportSlot, turrenttp);
+                        player.Spellbook.CastSpell(TeleportSlot, turrenttp);
                     }
                 }
             }

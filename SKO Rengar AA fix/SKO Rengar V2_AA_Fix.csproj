@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{FFBA51D3-9667-41D6-B55B-3B1BB55E0CB2}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>SKO_Rengar_V2</RootNamespace>
+    <RootNamespace>SKO_Rengar_V2_AA_Dix</RootNamespace>
     <AssemblyName>SKO_Rengar_V2</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <PreBuildEvent />
