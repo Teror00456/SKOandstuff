@@ -18,6 +18,8 @@ namespace VallySKO_Gnar
         private static Menu SKOMenu;
         private static SpellSlot IgniteSlot;
         private static bool MegaGnar;
+        private static Vector3 WardPos;
+        private static Spell WardSpell;
 
         private static void Main(string[] args)
         {
@@ -57,7 +59,7 @@ namespace VallySKO_Gnar
             SKOMenu = new Menu("VallySKO Gnar", "VSGnar", true);
 
             var SKOTs = new Menu("Target Selector", "TargetSelector");
-            SimpleTs.AddToMenu(SKOTs);
+            TargetSelector.AddToMenu(SKOTs);
 
             SKOMenu.AddSubMenu(new Menu("Orbwalking", "Orbwalking"));
             new Orbwalking.Orbwalker(SKOMenu.SubMenu("Orbwalking"));
@@ -135,7 +137,7 @@ namespace VallySKO_Gnar
                 Clear();
             }
 
-            var target = SimpleTs.GetTarget(MegaQ.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(MegaQ.Range, TargetSelector.DamageType.Physical);
             if (SKOMenu.Item("activeCombo").GetValue<KeyBind>().Active)
             {
 
@@ -149,7 +151,7 @@ namespace VallySKO_Gnar
 
 			if (SKOMenu.Item("AutoR").GetValue<bool>() && player.CountEnemysInRange(500) >= SKOMenu.Item("MinRenemys").GetValue<Slider>().Value)
             {
-                CastR(target);
+                CastR();
             }
 
             KillSteal(target);
@@ -222,7 +224,7 @@ namespace VallySKO_Gnar
             }
             if (SKOMenu.Item("UseR").GetValue<bool>())
             {
-                CastR(target);
+                CastR();
             }
             if (SKOMenu.Item("UseItemsCombo").GetValue<bool>())
             {
@@ -346,7 +348,7 @@ namespace VallySKO_Gnar
                         var coll =
                             megaQpred.CollisionObjects.OrderBy(unit => unit.Distance(player.ServerPosition)).First();
 
-                        if (coll.Distance(target) < 40)
+                        if (coll.Distance(target) < 30)
                         {
                             MegaQ.Cast(megaQpred.CastPosition, PacketCast);
                         }
@@ -416,14 +418,14 @@ namespace VallySKO_Gnar
             }
         }
 
-        private static void CastR(Obj_AI_Hero target)
+        private static void CastR()
         {
-            if (!R.IsReady() || !target.IsValidTarget(R.Range)) return;
+            if (!R.IsReady()) return;
 
 
             foreach (
-                var rcoll in ObjectManager.Get<Obj_AI_Hero>()
-				.Where(unit => unit.IsEnemy && unit.IsValidTarget(R.Range)))
+				var target in ObjectManager.Get<Obj_AI_Hero>()
+				.Where(unit => unit.IsEnemy && unit.IsValidTarget(R.Width)))
             {
                 /*Logic by LXMedia
                 var enemycenter = rcoll.Position;
