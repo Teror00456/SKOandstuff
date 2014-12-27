@@ -32,7 +32,7 @@ namespace SKO_Rengar_V2
             SKOMenu = new Menu("SKO Rengar", "SKORengar", true);
 
             var SKOTs = new Menu("Target Selector", "TargetSelector");
-            SimpleTs.AddToMenu(SKOTs);
+            TargetSelector.AddToMenu(SKOTs);
 
             var OrbMenu = new Menu("Orbwalker", "Orbwalker");
             LXOrbwalker.AddToMenu(OrbMenu);
@@ -86,7 +86,7 @@ namespace SKO_Rengar_V2
             Misc.AddItem(new MenuItem("UsePacket", "Use Packet").SetValue(true));
             Misc.AddItem(new MenuItem("TpREscape", "R + TP Escape").SetValue<KeyBind>(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
 
-            Game.PrintChat("<font color='#07B88C'>SKO Rengar V2 Loaded!</font>");
+            Game.PrintChat("<font color='#07B88C'>SKO Rengar V2</font> Loaded!");
 
             SKOMenu.AddSubMenu(SKOTs);
             SKOMenu.AddSubMenu(OrbMenu);
@@ -131,17 +131,17 @@ namespace SKO_Rengar_V2
             switch (LXOrbwalker.CurrentMode)
             {
                 case LXOrbwalker.Mode.Combo:
-                   target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
+                   target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
                     break;
                 
                 case LXOrbwalker.Mode.Flee:
                     if (_player.Distance(target) <= W.Range)
                     {
-                        target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
+                        target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
                     }
                     break;
                 default:
-                    target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+                    target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
                     break;
 
             }
@@ -285,11 +285,11 @@ namespace SKO_Rengar_V2
 
             if (target.IsValidTarget())
             {
-                if (SKOMenu.Item("Foguinho").GetValue<bool>() && _player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                if (SKOMenu.Item("Foguinho").GetValue<bool>() && _player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 {
                     if (igniteDmg > target.Health && _player.Distance(target) < 600)
                     {
-                        _player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        _player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
             }
@@ -322,13 +322,13 @@ namespace SKO_Rengar_V2
         {
             if (SKOMenu.Item("TpREscape").GetValue<KeyBind>().Active)
             {
-                if (R.IsReady() && _player.SummonerSpellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
+                if (R.IsReady() && _player.Spellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
                 {
                     R.Cast();
 
                     foreach (Obj_AI_Turret turrenttp in ObjectManager.Get<Obj_AI_Turret>().Where(turrenttp => turrenttp.IsAlly && turrenttp.Name == "Turret_T1_C_02_A" || turrenttp.Name == "Turret_T2_C_01_A"))
                     {
-                        _player.SummonerSpellbook.CastSpell(TeleportSlot, turrenttp);
+                        _player.Spellbook.CastSpell(TeleportSlot, turrenttp);
                     }
                 }
             }
@@ -385,7 +385,7 @@ namespace SKO_Rengar_V2
 
         private static void Harass()
         {
-            var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
+            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
             if (target.IsValidTarget())
             {
                 if (_player.Mana <= 4)
