@@ -61,7 +61,7 @@ namespace SKO_Galio
 
             //TargetSelector
             var targetSelectorMenu = new Menu("Target Selector", "Target Selector");
-            SimpleTs.AddToMenu(targetSelectorMenu);
+            TargetSelector.AddToMenu(targetSelectorMenu);
             Config.AddSubMenu(targetSelectorMenu);
 
             //Orbwalker
@@ -149,7 +149,7 @@ namespace SKO_Galio
 				}
 			}
 
-			var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+			var target = TargetSelector.GetTarget(Q.Range, TargetSelector.DamageType.Magical);
 
             if (Config.Item("ActiveCombo").GetValue<KeyBind>().Active) {
 				Combo(target);
@@ -165,33 +165,44 @@ namespace SKO_Galio
         }
 
 		private static void Combo(Obj_AI_Hero target) {
-            if (!Player.HasBuff("GalioIdolOfDurand")) {
-                Orbwalker.SetMovement(true);
+            if (Player.HasBuff("GalioIdolOfDurand")) {
+                Orbwalker.SetMovement(false);
             }
 
             if (target.IsValidTarget()) 
             {
                 if (Q.IsReady() && Player.Distance(target) <= Q.Range && Config.Item("UseQCombo").GetValue<bool>())
                 {
-                    Q.Cast(target, PacketCast);
+                    var qPred = Q.GetPrediction(target);
+
+                    if (qPred.Hitchance >= HitChance.High)
+                    {
+                        Q.Cast(qPred.CastPosition);
+                        
+                    }
                 }
                 if (E.IsReady() && Player.Distance(target) <= E.Range && Config.Item("UseECombo").GetValue<bool>())
                 {
-                    E.Cast(target, PacketCast);
+                    var ePred = E.GetPrediction(target);
+
+                    if (ePred.Hitchance >= HitChance.High)
+                    {
+                        E.Cast(ePred.CastPosition);
+
+                    }
                 } 
 				if (Config.Item("UseWCombo").GetValue<bool>() && Config.Item("WMode").GetValue<StringList>().SelectedIndex == 0 && W.IsReady())
 				{
 					W.Cast(Player);
 				}
 					
-				if (R.IsReady() && GetEnemys(target) >= Config.Item("MinEnemys").GetValue<Slider>().Value && Config.Item("UseRCombo").GetValue<bool>())
+				if (R.IsReady() && Player.CountEnemysInRange(560) >= Config.Item("MinEnemys").GetValue<Slider>().Value && Config.Item("UseRCombo").GetValue<bool>())
                 {
-                    Orbwalker.SetMovement(false);
+                    if (Config.Item("UseWCombo").GetValue<bool>() && Config.Item("WMode").GetValue<StringList>().SelectedIndex == 1 && W.IsReady())
+                    {
+                        W.Cast(Player);
+                    }
                     R.Cast(target, PacketCast, true);
-					if (Config.Item("UseWCombo").GetValue<bool>() && Config.Item("WMode").GetValue<StringList>().SelectedIndex == 1 && W.IsReady())
-					{
-						W.Cast(Player);
-					}
                 }
             
             }
@@ -201,11 +212,23 @@ namespace SKO_Galio
             if (target.IsValidTarget()){
                 if (Q.IsReady() && Player.Distance(target) <= Q.Range && Config.Item("UseQHarass").GetValue<bool>())
                 {
-                    Q.Cast(target, PacketCast);
+                    var qPred = Q.GetPrediction(target);
+
+                    if (qPred.Hitchance >= HitChance.High)
+                    {
+                        Q.Cast(qPred.CastPosition);
+
+                    }
                 }
                 else if (E.IsReady() && Player.Distance(target) <= E.Range && Config.Item("UseEHarass").GetValue<bool>())
                 {
-                    E.Cast(target, PacketCast);
+                    var ePred = E.GetPrediction(target);
+
+                    if (ePred.Hitchance >= HitChance.High)
+                    {
+                        E.Cast(ePred.CastPosition);
+
+                    }
                 }
             }
         }
@@ -219,11 +242,11 @@ namespace SKO_Galio
             if (target.IsValidTarget())
             {
                 if (Config.Item("UseIgnite").GetValue<bool>() && IgniteSlot != SpellSlot.Unknown &&
-                Player.SummonerSpellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+                Player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 {
                     if (IgniteDmg > target.Health)
                     {
-                        Player.SummonerSpellbook.CastSpell(IgniteSlot, target);
+                        Player.Spellbook.CastSpell(IgniteSlot, target);
                     }
                 }
 
