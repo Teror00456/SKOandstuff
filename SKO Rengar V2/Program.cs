@@ -10,7 +10,7 @@ namespace SKO_Rengar_V2
 {
     class Program
     {
-        private static Obj_AI_Hero _player;
+        private static Obj_AI_Hero player;
         private static Spell Q, W, E, R;
         private static Items.Item BWC, BRK, RO, YMG, STD, TMT, HYD, DFG;
         private static bool PacketCast;
@@ -25,8 +25,8 @@ namespace SKO_Rengar_V2
 
         private static void Game_OnGameLoad(EventArgs args)
         {
-            _player = ObjectManager.Player;
-            if (_player.ChampionName != "Rengar")
+            player = ObjectManager.Player;
+            if (player.ChampionName != "Rengar")
                 return;
 
             SKOMenu = new Menu("SKO Rengar", "SKORengar", true);
@@ -112,8 +112,8 @@ namespace SKO_Rengar_V2
             DFG = new Items.Item(3128, 750f);
 
 
-            IgniteSlot = _player.GetSpellSlot("SummonerDot");
-            TeleportSlot = _player.GetSpellSlot("SummonerTeleport");
+            IgniteSlot = player.GetSpellSlot("SummonerDot");
+            TeleportSlot = player.GetSpellSlot("SummonerTeleport");
 
             Game.OnGameUpdate += Game_OnGameUpdate;
             Drawing.OnDraw += Draw_OnDraw;
@@ -125,7 +125,7 @@ namespace SKO_Rengar_V2
             
             PacketCast = SKOMenu.Item("UsePacket").GetValue<bool>();
 
-            TPREscape();
+            TpREscape();
 
             
             switch (LXOrbwalker.CurrentMode)
@@ -135,7 +135,7 @@ namespace SKO_Rengar_V2
                     break;
                 
                 case LXOrbwalker.Mode.Flee:
-                    if (_player.Distance(target) <= W.Range)
+                    if (player.Distance(target) <= W.Range)
                     {
                         target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
                     }
@@ -156,55 +156,55 @@ namespace SKO_Rengar_V2
                 Clear();
             }
 
-            Q = new Spell(SpellSlot.Q, _player.AttackRange + 100);
-            YMG = new Items.Item(3142, _player.AttackRange + 50);
-            STD = new Items.Item(3131, _player.AttackRange + 50);
+            Q = new Spell(SpellSlot.Q, player.AttackRange + 100);
+            YMG = new Items.Item(3142, player.AttackRange + 50);
+            STD = new Items.Item(3131, player.AttackRange + 50);
 
             AutoHeal();
             KillSteal(target);
 
             if (SKOMenu.Item("activeCombo").GetValue<KeyBind>().Active)
             {
-                if (_player.Mana <= 4)
+                if (player.Mana <= 4)
                 {
-                    if (SKOMenu.Item("UseQ").GetValue<bool>() && _player.Distance(target) <= Q.Range)
+                    if (SKOMenu.Item("UseQ").GetValue<bool>() && player.Distance(target) <= Q.Range)
                     {
                         CastQ(target);
                     }
-                    if (SKOMenu.Item("UseW").GetValue<bool>() && _player.Distance(target) <= W.Range)
+                    if (SKOMenu.Item("UseW").GetValue<bool>() && player.Distance(target) <= W.Range)
                     {
                         CastW(target);
                     }
-                    if (SKOMenu.Item("UseE").GetValue<bool>() && _player.Distance(target) <= E.Range)
+                    if (SKOMenu.Item("UseE").GetValue<bool>() && player.Distance(target) <= E.Range)
                     {
                         CastE(target);
                     }
                 }
 
-                if (_player.Mana == 5)
+                if (player.Mana == 5)
                 {
-                    if (SKOMenu.Item("UseQ").GetValue<bool>() && SKOMenu.Item("CPrio").GetValue<StringList>().SelectedIndex == 0 && _player.Distance(target) <= Q.Range)
+                    if (SKOMenu.Item("UseQ").GetValue<bool>() && SKOMenu.Item("CPrio").GetValue<StringList>().SelectedIndex == 0 && player.Distance(target) <= Q.Range)
                     {
                         CastQ(target);
                     }
-                    if (SKOMenu.Item("UseW").GetValue<bool>() && SKOMenu.Item("CPrio").GetValue<StringList>().SelectedIndex == 1 && _player.Distance(target) <= W.Range)
+                    if (SKOMenu.Item("UseW").GetValue<bool>() && SKOMenu.Item("CPrio").GetValue<StringList>().SelectedIndex == 1 && player.Distance(target) <= W.Range)
                     {
                         CastW(target);
                     }
-                    if (SKOMenu.Item("UseE").GetValue<bool>() && SKOMenu.Item("CPrio").GetValue<StringList>().SelectedIndex == 2 && _player.Distance(target) <= E.Range)
+                    if (SKOMenu.Item("UseE").GetValue<bool>() && SKOMenu.Item("CPrio").GetValue<StringList>().SelectedIndex == 2 && player.Distance(target) <= E.Range)
                     {
                         CastE(target);
                     }
 
                     //E if !Q.IsReady()
-                    if (SKOMenu.Item("UseEEm").GetValue<bool>() && !Q.IsReady() && _player.Distance(target) > Q.Range + 100f || !Q.IsReady())
+                    if (SKOMenu.Item("UseEEm").GetValue<bool>() && !Q.IsReady() && player.Distance(target) > Q.Range + 100f || !Q.IsReady())
                     {
                         CastE(target);
                     }
                 }
                 if (SKOMenu.Item("UseItemsCombo").GetValue<bool>())
                 {
-                    if (_player.Distance(target) < _player.AttackRange + 50)
+                    if (player.Distance(target) < player.AttackRange + 50)
                     {
                         TMT.Cast();
                         HYD.Cast();
@@ -232,25 +232,25 @@ namespace SKO_Rengar_V2
             {
                 if (SKOMenu.Item("DrawQ").GetValue<bool>())
                 {
-                    Utility.DrawCircle(_player.Position, Q.Range, Color.White,
+                    Utility.DrawCircle(player.Position, Q.Range, Color.White,
                         SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
                         SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
                 }
                 if (SKOMenu.Item("DrawW").GetValue<bool>())
                 {
-                    Utility.DrawCircle(_player.Position, W.Range, Color.White,
+                    Utility.DrawCircle(player.Position, W.Range, Color.White,
                         SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
                         SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
                 }
                 if (SKOMenu.Item("DrawE").GetValue<bool>())
                 {
-                    Utility.DrawCircle(_player.Position, E.Range, Color.White,
+                    Utility.DrawCircle(player.Position, E.Range, Color.White,
                         SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
                         SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
                 }
                 if (SKOMenu.Item("DrawR").GetValue<bool>())
                 {
-                    Utility.DrawCircle(_player.Position, R.Range, Color.White,
+                    Utility.DrawCircle(player.Position, R.Range, Color.White,
                         SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
                         SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
                 }
@@ -259,76 +259,75 @@ namespace SKO_Rengar_V2
             {
                 if (SKOMenu.Item("DrawQ").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(_player.Position, Q.Range, Color.Green);
+                    Drawing.DrawCircle(player.Position, Q.Range, Color.Green);
                 }
                 if (SKOMenu.Item("DrawW").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(_player.Position, W.Range, Color.Green);
+                    Drawing.DrawCircle(player.Position, W.Range, Color.Green);
                 }
                 if (SKOMenu.Item("DrawE").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(_player.Position, E.Range, Color.Green);
+                    Drawing.DrawCircle(player.Position, E.Range, Color.Green);
                 }
                 if (SKOMenu.Item("DrawR").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(_player.Position, R.Range, Color.Green);
+                    Drawing.DrawCircle(player.Position, R.Range, Color.Green);
                 }
             }
         }
 
-        private static void KillSteal(Obj_AI_Hero target)
+        private static void KillSteal(Obj_AI_Hero unitHero)
         {
-            var igniteDmg = _player.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
-            var qDmg = _player.GetSpellDamage(target, SpellSlot.Q);
-            var wDmg = _player.GetSpellDamage(target, SpellSlot.Q);
-            var eDmg = _player.GetSpellDamage(target, SpellSlot.Q);
+            if (!unitHero.IsValidTarget()) return;
+            var igniteDmg = player.GetSummonerSpellDamage(unitHero, Damage.SummonerSpell.Ignite);
+            var qDmg = player.GetSpellDamage(unitHero, SpellSlot.Q);
+            var wDmg = player.GetSpellDamage(unitHero, SpellSlot.Q);
+            var eDmg = player.GetSpellDamage(unitHero, SpellSlot.Q);
 
-            if (target.IsValidTarget())
-            {
-                if (SKOMenu.Item("Foguinho").GetValue<bool>() && _player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
+
+                if (SKOMenu.Item("Foguinho").GetValue<bool>() && player.Spellbook.CanUseSpell(IgniteSlot) == SpellState.Ready)
                 {
-                    if (igniteDmg > target.Health && _player.Distance(target) < 600)
+                    if (igniteDmg > unitHero.Health && player.Distance(unitHero) < 600)
                     {
-                        _player.Spellbook.CastSpell(IgniteSlot, target);
+                        player.Spellbook.CastSpell(IgniteSlot, unitHero);
                     }
                 }
-            }
 
             if (SKOMenu.Item("UseQKs").GetValue<bool>())
             {
-                if (qDmg > target.Health && _player.Distance(target) <= Q.Range)
+                if (qDmg > unitHero.Health && player.Distance(unitHero) <= Q.Range)
                 {
-                    CastQ(target);
+                    CastQ(unitHero);
                 }
             }
             if (SKOMenu.Item("UseWKs").GetValue<bool>())
             {
-                if (wDmg > target.Health && _player.Distance(target) <= W.Range)
+                if (wDmg > unitHero.Health && player.Distance(unitHero) <= W.Range)
                 {
-                    CastW(target);
+                    CastW(unitHero);
                 }
             }
             if (SKOMenu.Item("UseEKs").GetValue<bool>())
             {
-                if (eDmg > target.Health && _player.Distance(target) <= E.Range)
+                if (eDmg > unitHero.Health && player.Distance(unitHero) <= E.Range)
                 {
-                    CastE(target);
+                    CastE(unitHero);
                 }
             }
         }
 
 
-        private static void TPREscape()
+        private static void TpREscape()
         {
             if (SKOMenu.Item("TpREscape").GetValue<KeyBind>().Active)
             {
-                if (R.IsReady() && _player.Spellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
+                if (R.IsReady() && player.Spellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
                 {
                     R.Cast();
 
                     foreach (Obj_AI_Turret turrenttp in ObjectManager.Get<Obj_AI_Turret>().Where(turrenttp => turrenttp.IsAlly && turrenttp.Name == "Turret_T1_C_02_A" || turrenttp.Name == "Turret_T2_C_01_A"))
                     {
-                        _player.Spellbook.CastSpell(TeleportSlot, turrenttp);
+                        player.Spellbook.CastSpell(TeleportSlot, turrenttp);
                     }
                 }
             }
@@ -336,44 +335,44 @@ namespace SKO_Rengar_V2
 
         private static void Clear()
         {
-            var allminions = MinionManager.GetMinions(_player.ServerPosition, 1000, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.MaxHealth);
+            var allminions = MinionManager.GetMinions(player.ServerPosition, 1000, MinionTypes.All, MinionTeam.NotAlly, MinionOrderTypes.MaxHealth);
 
             foreach (var minion in allminions.Where(minion => minion.IsValidTarget()))
             {
-                if (_player.Mana <= 4)
+                if (player.Mana <= 4)
                 {
-                    if (Q.IsReady() && SKOMenu.Item("UseQC").GetValue<bool>() && _player.Distance(minion) <= Q.Range)
+                    if (Q.IsReady() && SKOMenu.Item("UseQC").GetValue<bool>() && player.Distance(minion) <= Q.Range)
                     {
                         Q.Cast();
                     }
-                    if (W.IsReady() && SKOMenu.Item("UseWC").GetValue<bool>() && _player.Distance(minion) <= W.Range)
+                    if (W.IsReady() && SKOMenu.Item("UseWC").GetValue<bool>() && player.Distance(minion) <= W.Range)
                     {
                         W.Cast();
                     }
-                    if (E.IsReady() && SKOMenu.Item("UseEC").GetValue<bool>() && _player.Distance(minion) <= E.Range)
+                    if (E.IsReady() && SKOMenu.Item("UseEC").GetValue<bool>() && player.Distance(minion) <= E.Range)
                     {
                         E.Cast(minion, PacketCast);
                     }
                 }
-                if (_player.Mana == 5)
+                if (player.Mana == 5)
                 {
                     if (SKOMenu.Item("Save").GetValue<bool>()) return;
-                    if (Q.IsReady() && SKOMenu.Item("FPrio").GetValue<StringList>().SelectedIndex == 0 && SKOMenu.Item("UseQC").GetValue<bool>() && _player.Distance(minion) <= Q.Range)
+                    if (Q.IsReady() && SKOMenu.Item("FPrio").GetValue<StringList>().SelectedIndex == 0 && SKOMenu.Item("UseQC").GetValue<bool>() && player.Distance(minion) <= Q.Range)
                     {
                         Q.Cast();
                     }
-                    if (W.IsReady() && SKOMenu.Item("FPrio").GetValue<StringList>().SelectedIndex == 1 && SKOMenu.Item("UseWC").GetValue<bool>() && _player.Distance(minion) <= W.Range)
+                    if (W.IsReady() && SKOMenu.Item("FPrio").GetValue<StringList>().SelectedIndex == 1 && SKOMenu.Item("UseWC").GetValue<bool>() && player.Distance(minion) <= W.Range)
                     {
                         W.Cast();
                     }
-                    if (E.IsReady() && SKOMenu.Item("FPrio").GetValue<StringList>().SelectedIndex == 2 && SKOMenu.Item("UseEC").GetValue<bool>() && _player.Distance(minion) <= E.Range)
+                    if (E.IsReady() && SKOMenu.Item("FPrio").GetValue<StringList>().SelectedIndex == 2 && SKOMenu.Item("UseEC").GetValue<bool>() && player.Distance(minion) <= E.Range)
                     {
                         E.Cast(minion, PacketCast);
                     }
                 }
                 if (SKOMenu.Item("UseItemsClear").GetValue<bool>())
                 {
-                    if (_player.Distance(minion) < _player.AttackRange + 50)
+                    if (player.Distance(minion) < player.AttackRange + 50)
                     {
                         TMT.Cast();
                         HYD.Cast();
@@ -385,107 +384,106 @@ namespace SKO_Rengar_V2
 
         private static void Harass()
         {
-            var target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
-            if (target.IsValidTarget())
-            {
-                if (_player.Mana <= 4)
+            var unitHero = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+
+            if (!unitHero.IsValidTarget()) return;
+
+                if (player.Mana <= 4)
                 {
-                    if (SKOMenu.Item("UseWH").GetValue<bool>() && _player.Distance(target) <= W.Range)
+                    if (SKOMenu.Item("UseWH").GetValue<bool>() && player.Distance(unitHero) <= W.Range)
                     {
-                        CastW(target);
+                        CastW(unitHero);
                     }
-                    if (SKOMenu.Item("UseEH").GetValue<bool>() && _player.Distance(target) <= E.Range)
+                    if (SKOMenu.Item("UseEH").GetValue<bool>() && player.Distance(unitHero) <= E.Range)
                     {
-                        CastE(target);
+                        CastE(unitHero);
                     }
                 }
-                if (_player.Mana == 5)
+                if (player.Mana == 5)
                 {
                     if (SKOMenu.Item("UseWH").GetValue<bool>() && SKOMenu.Item("HPrio").GetValue<StringList>().SelectedIndex == 0)
                     {
-                        CastW(target);
+                        CastW(unitHero);
                     }
                     if (SKOMenu.Item("UseEH").GetValue<bool>() && SKOMenu.Item("HPrio").GetValue<StringList>().SelectedIndex == 1)
                     {
-                        CastE(target);
+                        CastE(unitHero);
                     }
                 }
                 if (SKOMenu.Item("UseItemsHarass").GetValue<bool>())
                 {
-                    if (_player.Distance(target) < _player.AttackRange + 50)
+                    if (player.Distance(unitHero) < player.AttackRange + 50)
                     {
                         TMT.Cast();
                         HYD.Cast();
                         STD.Cast();
                     }
-                    BWC.Cast(target);
-                    BRK.Cast(target);
-                    DFG.Cast(target);
-                    RO.Cast(target);
+                    BWC.Cast(unitHero);
+                    BRK.Cast(unitHero);
+                    DFG.Cast(unitHero);
+                    RO.Cast(unitHero);
                     YMG.Cast();
                 }
-            }
         }
 
-        private static void TripleQ(Obj_AI_Hero target)
+        private static void TripleQ(Obj_AI_Hero unitHero)
         {
-            if (_player.Mana <= 4 || !R.IsReady())
+            if(!unitHero.IsValidTarget()) return;
+
+            if (player.Mana <= 4 || !R.IsReady())
             {
-                var splayer = Drawing.WorldToScreen(_player.ServerPosition);
+                var splayer = Drawing.WorldToScreen(player.ServerPosition);
                 Drawing.DrawText(splayer.X, splayer.Y, Color.Red, "R is not ready or you do not have 5 ferocity");
             }
 
-            if (target.IsValidTarget())
-            {
-                if (_player.Mana == 5 && R.IsReady() && _player.Distance(target) <= R.Range && Q.IsReady())
+
+                if (player.Mana == 5 && R.IsReady() && player.Distance(unitHero) <= R.Range && Q.IsReady())
                 {
                     R.Cast();
                 }
-                if (_player.Mana == 5 && _player.HasBuff("RengarR") && _player.Distance(target) <= Q.Range)
+                if (player.Mana == 5 && player.HasBuff("RengarR") && player.Distance(unitHero) <= Q.Range)
                 {
-                    CastQ(target);
+                    CastQ(unitHero);
                 }
-                if (_player.Mana == 5 && !_player.HasBuff("RengarR") && _player.Distance(target) <= Q.Range)
+                if (player.Mana == 5 && !player.HasBuff("RengarR") && player.Distance(unitHero) <= Q.Range)
                 {
-                    CastQ(target);
+                    CastQ(unitHero);
                 }
-                if (_player.Mana <= 4)
+                if (player.Mana <= 4)
                 {
-                    if (_player.Distance(target) <= Q.Range)
+                    if (player.Distance(unitHero) <= Q.Range)
                     {
-                        CastQ(target);
+                        CastQ(unitHero);
                     }
-                    if (_player.Distance(target) <= W.Range)
+                    if (player.Distance(unitHero) <= W.Range)
                     {
-                        CastW(target);
+                        CastW(unitHero);
                     }
-                    if (_player.Distance(target) <= E.Range)
+                    if (player.Distance(unitHero) <= E.Range)
                     {
-                        CastE(target);
+                        CastE(unitHero);
                     }
                 }
-                if (_player.Distance(target) < _player.AttackRange + 50)
+                if (player.Distance(unitHero) < player.AttackRange + 50)
                 {
                     TMT.Cast();
                     HYD.Cast();
                     STD.Cast();
                 }
-                BWC.Cast(target);
-                BRK.Cast(target);
-                DFG.Cast(target);
-                RO.Cast(target);
+                BWC.Cast(unitHero);
+                BRK.Cast(unitHero);
+                DFG.Cast(unitHero);
+                RO.Cast(unitHero);
                 YMG.Cast();
-
-            }
         }
 
         private static void AutoHeal()
         {
-            if (_player.HasBuff("Recall") || _player.Mana <= 4) return;
+            if (player.HasBuff("Recall") || player.Mana <= 4) return;
 
             if (SKOMenu.Item("UseAutoW").GetValue<bool>())
             {
-                if (W.IsReady() && _player.Health < (_player.MaxHealth * (SKOMenu.Item("HpAutoW").GetValue<Slider>().Value) / 100))
+                if (W.IsReady() && player.Health < (player.MaxHealth * (SKOMenu.Item("HpAutoW").GetValue<Slider>().Value) / 100))
                 {
                     W.Cast();
                 }
