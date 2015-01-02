@@ -59,17 +59,24 @@ namespace SKO_Rengar_V2_AA_Dix
             Combo.AddItem(new MenuItem("UseW", "Use W").SetValue(true));
             Combo.AddItem(new MenuItem("UseE", "Use E").SetValue(true));
             Combo.AddItem(new MenuItem("UseEEm", "Use Empowered E if target is out of Q Range").SetValue(false));
-            Combo.AddItem(new MenuItem("UseItemsCombo", "Use Items").SetValue(true));
             Combo.AddItem(new MenuItem("UseAutoW", "Auto W").SetValue(true));
             Combo.AddItem(new MenuItem("HpAutoW", "Min hp").SetValue(new Slider(20, 1, 100)));
             Combo.AddItem(new MenuItem("TripleQ", "Triple Q").SetValue(new KeyBind("A".ToCharArray()[0], KeyBindType.Press)));
             Combo.AddItem(new MenuItem("activeCombo", "Combo!").SetValue(new KeyBind(32, KeyBindType.Press)));
 
+
+            var items = new Menu("Items", "Items");
+            items.AddItem(new MenuItem("Hydra", "Hydra").SetValue(true));
+            items.AddItem(new MenuItem("BOTRK", "BOTRK").SetValue(true));
+            items.AddItem(new MenuItem("RO", "Randuin's Omen").SetValue(true));
+            items.AddItem(new MenuItem("SOD", "Sword of the Divine").SetValue(true));
+            items.AddItem(new MenuItem("YMU", "Youmuu's Ghostblade").SetValue(true));
+            items.AddItem(new MenuItem("DFG", "Deathfire Grasp").SetValue(true));
+
             var Harass = new Menu("Harass", "Harass");
             Harass.AddItem(new MenuItem("HPrio", "Empowered Priority").SetValue(new StringList(new[] { "W", "E" }, 1)));
             Harass.AddItem(new MenuItem("UseWH", "Use W").SetValue(true));
             Harass.AddItem(new MenuItem("UseEH", "Use E").SetValue(true));
-            Harass.AddItem(new MenuItem("UseItemsHarass", "Use Items").SetValue(true));
             Harass.AddItem(new MenuItem("activeHarass", "Harass!").SetValue(new KeyBind("C".ToCharArray()[0], KeyBindType.Press)));
 
             var JLClear = new Menu("Jungle/Lane Clear", "JLClear");
@@ -78,7 +85,6 @@ namespace SKO_Rengar_V2_AA_Dix
             JLClear.AddItem(new MenuItem("UseWC", "Use W").SetValue(true));
             JLClear.AddItem(new MenuItem("UseEC", "Use E").SetValue(true));
             JLClear.AddItem(new MenuItem("Save", "Save Ferocity").SetValue(false));
-            JLClear.AddItem(new MenuItem("UseItemsClear", "Use Items").SetValue(true));
             JLClear.AddItem(new MenuItem("activeClear", "Clear!").SetValue(new KeyBind("V".ToCharArray()[0], KeyBindType.Press)));
 
             var KillSteal = new Menu("KillSteal", "KillSteal");
@@ -107,6 +113,7 @@ namespace SKO_Rengar_V2_AA_Dix
             SKOMenu.AddSubMenu(Combo);
             SKOMenu.AddSubMenu(Harass);
             SKOMenu.AddSubMenu(JLClear);
+            SKOMenu.AddSubMenu(items);
             SKOMenu.AddSubMenu(KillSteal);
             SKOMenu.AddSubMenu(drawc);
             SKOMenu.AddSubMenu(Misc);
@@ -121,14 +128,14 @@ namespace SKO_Rengar_V2_AA_Dix
 
         private static void Game_OnGameUpdate(EventArgs args)
         {
-
             //Checks
             PacketCast = SKOMenu.Item("UsePacket").GetValue<bool>();
             TpREscape();
+            AutoHeal();
             Q = new Spell(SpellSlot.Q, player.AttackRange + 100);
             YMG = new Items.Item(3142, player.AttackRange + 50);
             STD = new Items.Item(3131, player.AttackRange + 50);
-            AutoHeal();
+            
 
             if (SKOMenu.Item("activeClear").GetValue<KeyBind>().Active)
             {
@@ -262,26 +269,12 @@ namespace SKO_Rengar_V2_AA_Dix
                     CastE(unitHero);
                 }
             }
-            if (SKOMenu.Item("UseItemsCombo").GetValue<bool>())
-            {
-                if (player.Distance(unitHero) < player.AttackRange + 50)
-                {
-                    TMT.Cast();
-                    HYD.Cast();
-                    STD.Cast();
-                }
-                BWC.Cast(unitHero);
-                BRK.Cast(unitHero);
-                RO.Cast(unitHero);
-                DFG.Cast(unitHero);
-                YMG.Cast();
-            }
-
+            UseItems(target);
         }
 
         private static void Harass(Obj_AI_Hero unitHero)
         {
-            //if (!unitHero.IsValidTarget()) return;
+            if (!unitHero.IsValidTarget()) return;
 
             if (player.Mana <= 4)
             {
@@ -305,20 +298,7 @@ namespace SKO_Rengar_V2_AA_Dix
                     CastE(unitHero);
                 }
             }
-            if (SKOMenu.Item("UseItemsHarass").GetValue<bool>())
-            {
-                if (player.Distance(unitHero) < player.AttackRange + 50)
-                {
-                    TMT.Cast();
-                    HYD.Cast();
-                    STD.Cast();
-                }
-                BWC.Cast(unitHero);
-                BRK.Cast(unitHero);
-                RO.Cast(unitHero);
-                DFG.Cast(unitHero);
-                YMG.Cast();
-            }
+            UseItems(target);
         }
 
         private static void KillSteal(Obj_AI_Hero unitHero)
@@ -399,21 +379,13 @@ namespace SKO_Rengar_V2_AA_Dix
                         E.Cast(minion, PacketCast);
                     }
                 }
-                if (SKOMenu.Item("UseItemsClear").GetValue<bool>())
-                {
-                    if (player.Distance(minion) < player.AttackRange + 50)
-                    {
-                        TMT.Cast();
-                        HYD.Cast();
-                    }
-                    YMG.Cast();
-                }
+                UseItems(minion, true);
             }
         }
 
 		private static void TripleQ(Obj_AI_Hero unitHero)
         {
-            //if(!unitHero.IsValidTarget()) return;
+            if(!unitHero.IsValidTarget()) return;
 
 			Orbwalking.Orbwalk(unitHero, Game.CursorPos);
 
@@ -451,17 +423,7 @@ namespace SKO_Rengar_V2_AA_Dix
                     CastE(unitHero);
                 }
             }
-            if (player.Distance(unitHero) < player.AttackRange + 50)
-            {
-                TMT.Cast();
-                HYD.Cast();
-                STD.Cast();
-            }
-            BWC.Cast(unitHero);
-            BRK.Cast(unitHero);
-            RO.Cast(unitHero);
-            DFG.Cast(unitHero);
-            YMG.Cast();
+            UseItems(target);
         }
 
 
@@ -480,16 +442,16 @@ namespace SKO_Rengar_V2_AA_Dix
 
         private static void TpREscape()
         {
-            if (SKOMenu.Item("TpREscape").GetValue<KeyBind>().Active)
-            {
-                if (R.IsReady() && player.Spellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
-                {
-                    R.Cast();
+            if (!SKOMenu.Item("TpREscape").GetValue<KeyBind>().Active) return;
 
-                    foreach (Obj_AI_Turret turrenttp in ObjectManager.Get<Obj_AI_Turret>().Where(turrenttp => turrenttp.IsAlly && turrenttp.Name == "Turret_T1_C_02_A" || turrenttp.Name == "Turret_T2_C_01_A"))
-                    {
-                        player.Spellbook.CastSpell(TeleportSlot, turrenttp);
-                    }
+
+            if (R.IsReady() && player.Spellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
+            {
+                R.Cast();
+
+                foreach (Obj_AI_Turret turrenttp in ObjectManager.Get<Obj_AI_Turret>().Where(turrenttp => turrenttp.IsAlly && turrenttp.Name == "Turret_T1_C_02_A" || turrenttp.Name == "Turret_T2_C_01_A"))
+                {
+                    player.Spellbook.CastSpell(TeleportSlot, turrenttp);
                 }
             }
         }
@@ -537,6 +499,49 @@ namespace SKO_Rengar_V2_AA_Dix
             catch (Exception e)
             {
                 Console.WriteLine("{0}", e.ToString());
+            }
+        }
+
+        private static void UseItems(Obj_AI_Base unit, bool isMinion = false)
+        {
+         if(!unit.IsValidTarget()) return;
+
+
+            if (SKOMenu.Item("Hydra").GetValue<bool>() && player.Distance(unit) < HYD.Range)
+            {
+                HYD.Cast();
+            }
+            if (SKOMenu.Item("Hydra").GetValue<bool>() && player.Distance(unit) < TMT.Range)
+            {
+                TMT.Cast();
+            }
+            if (SKOMenu.Item("BOTRK").GetValue<bool>() && player.Distance(unit) <= BRK.Range)
+            {
+                if(isMinion) return;
+                BRK.Cast(unit);
+            }
+            if (SKOMenu.Item("BOTRK").GetValue<bool>() && player.Distance(unit) <= BWC.Range)
+            {
+                
+                BWC.Cast(unit);
+            }
+            if (SKOMenu.Item("RO").GetValue<bool>() && player.Distance(unit) <= RO.Range)
+            {
+                if (isMinion) return;
+                RO.Cast();
+            }
+            if (SKOMenu.Item("DFG").GetValue<bool>() && player.Distance(unit) <= DFG.Range)
+            {
+                if(isMinion) return;
+                DFG.Cast(unit);
+            }
+            if (SKOMenu.Item("YMU").GetValue<bool>() && player.Distance(unit) <= YMG.Range)
+            {
+                YMG.Cast();
+            }
+            if (SKOMenu.Item("SOD").GetValue<bool>() && player.Distance(unit) <= STD.Range)
+            {
+                STD.Cast();
             }
         }
 

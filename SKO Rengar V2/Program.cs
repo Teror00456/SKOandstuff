@@ -201,22 +201,9 @@ namespace SKO_Rengar_V2
                     {
                         CastE(target);
                     }
+                    
                 }
-                if (SKOMenu.Item("UseItemsCombo").GetValue<bool>())
-                {
-                    if (player.Distance(target) < player.AttackRange + 50)
-                    {
-                        TMT.Cast();
-                        HYD.Cast();
-                        STD.Cast();
-                    }
-                    BWC.Cast(target);
-                    BRK.Cast(target);
-                    DFG.Cast(target);
-                    RO.Cast(target);
-                    YMG.Cast();
-                }
-
+                UseItems(target);
             }
             if (SKOMenu.Item("activeHarass").GetValue<KeyBind>().Active)
             {
@@ -319,16 +306,15 @@ namespace SKO_Rengar_V2
 
         private static void TpREscape()
         {
-            if (SKOMenu.Item("TpREscape").GetValue<KeyBind>().Active)
-            {
-                if (R.IsReady() && player.Spellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
-                {
-                    R.Cast();
+            if (!SKOMenu.Item("TpREscape").GetValue<KeyBind>().Active) return;
 
-                    foreach (Obj_AI_Turret turrenttp in ObjectManager.Get<Obj_AI_Turret>().Where(turrenttp => turrenttp.IsAlly && turrenttp.Name == "Turret_T1_C_02_A" || turrenttp.Name == "Turret_T2_C_01_A"))
-                    {
-                        player.Spellbook.CastSpell(TeleportSlot, turrenttp);
-                    }
+            if (R.IsReady() && player.Spellbook.CanUseSpell(TeleportSlot) == SpellState.Ready)
+            {
+                R.Cast();
+
+                foreach (Obj_AI_Turret turrenttp in ObjectManager.Get<Obj_AI_Turret>().Where(turrenttp => turrenttp.IsAlly && turrenttp.Name == "Turret_T1_C_02_A" || turrenttp.Name == "Turret_T2_C_01_A"))
+                {
+                    player.Spellbook.CastSpell(TeleportSlot, turrenttp);
                 }
             }
         }
@@ -370,15 +356,7 @@ namespace SKO_Rengar_V2
                         E.Cast(minion, PacketCast);
                     }
                 }
-                if (SKOMenu.Item("UseItemsClear").GetValue<bool>())
-                {
-                    if (player.Distance(minion) < player.AttackRange + 50)
-                    {
-                        TMT.Cast();
-                        HYD.Cast();
-                    }
-                    YMG.Cast();
-                }
+                UseItems(minion, true);
             }
         }
 
@@ -410,20 +388,7 @@ namespace SKO_Rengar_V2
                         CastE(unitHero);
                     }
                 }
-                if (SKOMenu.Item("UseItemsHarass").GetValue<bool>())
-                {
-                    if (player.Distance(unitHero) < player.AttackRange + 50)
-                    {
-                        TMT.Cast();
-                        HYD.Cast();
-                        STD.Cast();
-                    }
-                    BWC.Cast(unitHero);
-                    BRK.Cast(unitHero);
-                    DFG.Cast(unitHero);
-                    RO.Cast(unitHero);
-                    YMG.Cast();
-                }
+            UseItems(unitHero);
         }
 
         private static void TripleQ(Obj_AI_Hero unitHero)
@@ -464,17 +429,7 @@ namespace SKO_Rengar_V2
                         CastE(unitHero);
                     }
                 }
-                if (player.Distance(unitHero) < player.AttackRange + 50)
-                {
-                    TMT.Cast();
-                    HYD.Cast();
-                    STD.Cast();
-                }
-                BWC.Cast(unitHero);
-                BRK.Cast(unitHero);
-                DFG.Cast(unitHero);
-                RO.Cast(unitHero);
-                YMG.Cast();
+            UseItems(unitHero);
         }
 
         private static void AutoHeal()
@@ -533,6 +488,49 @@ namespace SKO_Rengar_V2
             catch (Exception e)
             {
                 Console.WriteLine("{0}", e.ToString());
+            }
+        }
+
+        private static void UseItems(Obj_AI_Base unit, bool isMinion = false)
+        {
+            if (!unit.IsValidTarget()) return;
+
+
+            if (SKOMenu.Item("Hydra").GetValue<bool>() && player.Distance(unit) < HYD.Range)
+            {
+                HYD.Cast();
+            }
+            if (SKOMenu.Item("Hydra").GetValue<bool>() && player.Distance(unit) < TMT.Range)
+            {
+                TMT.Cast();
+            }
+            if (SKOMenu.Item("BOTRK").GetValue<bool>() && player.Distance(unit) <= BRK.Range)
+            {
+                if (isMinion) return;
+                BRK.Cast(unit);
+            }
+            if (SKOMenu.Item("BOTRK").GetValue<bool>() && player.Distance(unit) <= BWC.Range)
+            {
+
+                BWC.Cast(unit);
+            }
+            if (SKOMenu.Item("RO").GetValue<bool>() && player.Distance(unit) <= RO.Range)
+            {
+                if (isMinion) return;
+                RO.Cast();
+            }
+            if (SKOMenu.Item("DFG").GetValue<bool>() && player.Distance(unit) <= DFG.Range)
+            {
+                if (isMinion) return;
+                DFG.Cast(unit);
+            }
+            if (SKOMenu.Item("YMU").GetValue<bool>() && player.Distance(unit) <= YMG.Range)
+            {
+                YMG.Cast();
+            }
+            if (SKOMenu.Item("SOD").GetValue<bool>() && player.Distance(unit) <= STD.Range)
+            {
+                STD.Cast();
             }
         }
 
