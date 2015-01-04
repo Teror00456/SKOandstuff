@@ -50,6 +50,14 @@ namespace SKO_Rengar_V2
             Combo.AddItem(new MenuItem("TripleQ", "Triple Q").SetValue(new KeyBind(OrbMenu.Item("Flee_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
             Combo.AddItem(new MenuItem("activeCombo", "Combo!").SetValue(new KeyBind(OrbMenu.Item("Combo_Key").GetValue<KeyBind>().Key, KeyBindType.Press)));
 
+            var items = new Menu("Items", "Items");
+            items.AddItem(new MenuItem("Hydra", "Hydra").SetValue(true));
+            items.AddItem(new MenuItem("BOTRK", "BOTRK").SetValue(true));
+            items.AddItem(new MenuItem("RO", "Randuin's Omen").SetValue(true));
+            items.AddItem(new MenuItem("SOD", "Sword of the Divine").SetValue(true));
+            items.AddItem(new MenuItem("YMU", "Youmuu's Ghostblade").SetValue(true));
+            items.AddItem(new MenuItem("DFG", "Deathfire Grasp").SetValue(true));
+
             var Harass = new Menu("Harass", "Harass");
             Harass.AddItem(new MenuItem("HPrio", "Empowered Priority").SetValue(new StringList(new[] { "W", "E" }, 1)));
             Harass.AddItem(new MenuItem("UseWH", "Use W").SetValue(true));
@@ -91,6 +99,7 @@ namespace SKO_Rengar_V2
             SKOMenu.AddSubMenu(SKOTs);
             SKOMenu.AddSubMenu(OrbMenu);
             SKOMenu.AddSubMenu(Combo);
+            SKOMenu.AddSubMenu(items);
             SKOMenu.AddSubMenu(Harass);
             SKOMenu.AddSubMenu(JLClear);
             SKOMenu.AddSubMenu(TROLLZINHONASRANKEDS);
@@ -129,19 +138,17 @@ namespace SKO_Rengar_V2
 
             
             switch (LXOrbwalker.CurrentMode)
-            {
-                case LXOrbwalker.Mode.Combo:
-                   target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
-                    break;
-                
+            {             
                 case LXOrbwalker.Mode.Flee:
-                    if (player.Distance(target) <= W.Range)
+                    if (!player.HasBuff("RengarR") && R.IsReady())
                     {
+                        target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
+                    }else{
                         target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
                     }
                     break;
                 default:
-                    target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
+                    target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
                     break;
 
             }
@@ -197,7 +204,7 @@ namespace SKO_Rengar_V2
                     }
 
                     //E if !Q.IsReady()
-                    if (SKOMenu.Item("UseEEm").GetValue<bool>() && !Q.IsReady() && player.Distance(target) > Q.Range + 100f || !Q.IsReady())
+                    if (SKOMenu.Item("UseEEm").GetValue<bool>() && player.Distance(target) > Q.Range + 100f)
                     {
                         CastE(target);
                     }
@@ -394,13 +401,6 @@ namespace SKO_Rengar_V2
         private static void TripleQ(Obj_AI_Hero unitHero)
         {
             if(!unitHero.IsValidTarget()) return;
-
-            if (player.Mana <= 4 || !R.IsReady())
-            {
-                var splayer = Drawing.WorldToScreen(player.ServerPosition);
-                Drawing.DrawText(splayer.X, splayer.Y, Color.Red, "R is not ready or you do not have 5 ferocity");
-            }
-
 
                 if (player.Mana == 5 && R.IsReady() && player.Distance(unitHero) <= R.Range && Q.IsReady())
                 {
