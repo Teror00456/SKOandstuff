@@ -100,8 +100,7 @@ namespace SKO_Rengar_V2_AA_Dix
             drawc.AddItem(new MenuItem("DrawE", "Draw E").SetValue(true));
             drawc.AddItem(new MenuItem("DrawR", "Draw R").SetValue(true));
             drawc.AddItem(new MenuItem("CircleLag", "Lag Free Circles").SetValue(true));
-            drawc.AddItem(new MenuItem("CircleQuality", "Circles Quality").SetValue(new Slider(100, 100, 10)));
-            drawc.AddItem(new MenuItem("CircleThickness", "Circles Thickness").SetValue(new Slider(1, 10, 1)));
+            drawc.AddItem(new MenuItem("CircleWidth", "Circles Width").SetValue(new Slider(1, 1, 100)));
 
             var Misc = new Menu("Misc", "Misc");
             Misc.AddItem(new MenuItem("UsePacket", "Use Packet").SetValue(true));
@@ -141,23 +140,32 @@ namespace SKO_Rengar_V2_AA_Dix
             {
                 Clear();
             }
-				
 
-			foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(unit => unit.IsEnemy && !unit.IsDead && unit.IsValidTarget()))
-            {
-                if (player.Distance(enemy) <= W.Range)
+
+
+                foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(unit => unit.IsEnemy && !unit.IsDead && !unit.IsAlly && unit != null && !unit.IsInvulnerable))
                 {
-                    target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
+                    if (player.Distance(enemy) <= E.Range)
+                    {
+                        target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical);
+                    }
+
+
+                    /* TQ Target */
+                    if (SKOMenu.Item("TripleQ").GetValue<KeyBind>().Active)
+                    {
+                        if (!player.HasBuff("RengarR") && R.IsReady())
+                        {
+
+                            target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
+                        }
+                        else
+                        {
+                            target = TargetSelector.GetTarget(W.Range, TargetSelector.DamageType.Physical);
+                        }
+                    }
                 }
-                else if (player.Distance(enemy) <= E.Range)
-                {
-                    target = TargetSelector.GetTarget(E.Range, TargetSelector.DamageType.Physical); 
-                }
-                else if(player.Distance(enemy) <= R.Range)
-                {
-                    target = TargetSelector.GetTarget(R.Range, TargetSelector.DamageType.Physical);
-                }
-            }
+
 
 			if (SKOMenu.Item("TripleQ").GetValue<KeyBind>().Active)
 			{
@@ -185,46 +193,38 @@ namespace SKO_Rengar_V2_AA_Dix
             {
                 if (SKOMenu.Item("DrawQ").GetValue<bool>())
                 {
-                    Utility.DrawCircle(player.Position, Q.Range, Color.White,
-                        SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
-                        SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
+                    Render.Circle.DrawCircle(player.ServerPosition, Q.Range, Color.White, SKOMenu.Item("CircleWidth").GetValue<Slider>().Value);
                 }
                 if (SKOMenu.Item("DrawW").GetValue<bool>())
                 {
-                    Utility.DrawCircle(player.Position, W.Range, Color.White,
-                        SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
-                        SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
+                    Render.Circle.DrawCircle(player.ServerPosition, W.Range, Color.White, SKOMenu.Item("CircleWidth").GetValue<Slider>().Value);
                 }
                 if (SKOMenu.Item("DrawE").GetValue<bool>())
                 {
-                    Utility.DrawCircle(player.Position, E.Range, Color.White,
-                        SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
-                        SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
+                    Render.Circle.DrawCircle(player.ServerPosition, E.Range, Color.White, SKOMenu.Item("CircleWidth").GetValue<Slider>().Value);
                 }
                 if (SKOMenu.Item("DrawR").GetValue<bool>())
                 {
-                    Utility.DrawCircle(player.Position, R.Range, Color.White,
-                        SKOMenu.Item("CircleThickness").GetValue<Slider>().Value,
-                        SKOMenu.Item("CircleQuality").GetValue<Slider>().Value);
+                    Render.Circle.DrawCircle(player.ServerPosition, R.Range, Color.White, SKOMenu.Item("CircleWidth").GetValue<Slider>().Value);
                 }
             }
             else
             {
                 if (SKOMenu.Item("DrawQ").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(player.Position, Q.Range, Color.Green);
+                    Drawing.DrawCircle(player.ServerPosition, Q.Range, Color.Green);
                 }
                 if (SKOMenu.Item("DrawW").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(player.Position, W.Range, Color.Green);
+                    Drawing.DrawCircle(player.ServerPosition, W.Range, Color.Green);
                 }
                 if (SKOMenu.Item("DrawE").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(player.Position, E.Range, Color.Green);
+                    Drawing.DrawCircle(player.ServerPosition, E.Range, Color.Green);
                 }
                 if (SKOMenu.Item("DrawR").GetValue<bool>())
                 {
-                    Drawing.DrawCircle(player.Position, R.Range, Color.Green);
+                    Drawing.DrawCircle(player.ServerPosition, R.Range, Color.Green);
                 }
             }
         }
@@ -264,7 +264,7 @@ namespace SKO_Rengar_V2_AA_Dix
                     CastE(unitHero);
                 }
 
-                if (SKOMenu.Item("UseEEm").GetValue<bool>() && player.Distance(unitHero) > Q.Range+100f || !Q.IsReady())
+                if (SKOMenu.Item("UseEEm").GetValue<bool>() && player.Distance(unitHero) > Q.Range+100f)
                 {
                     CastE(unitHero);
                 }
